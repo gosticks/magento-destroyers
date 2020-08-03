@@ -227,7 +227,7 @@ const createExplosion = (
 };
 
 const createProjectile = (scene: THREE.Scene, origin: THREE.Vector3) => {
-  const materials = new THREE.MeshStandardMaterial({ color: 0xddd500 });
+  const materials = new THREE.MeshPhongMaterial({ color: 0xddd500 });
   const boxGeometry = new THREE.SphereGeometry(1);
 
   const projectile = new THREE.Mesh(boxGeometry, materials);
@@ -237,13 +237,18 @@ const createProjectile = (scene: THREE.Scene, origin: THREE.Vector3) => {
 };
 
 const createPlayer = (scene: THREE.Scene) => {
-  const player = createPlayerGeometry(10, new THREE.Vector3(0, 0, 10));
+  const materials = new THREE.MeshPhongMaterial({ color: 0xddd500 });
+
+  const player = new THREE.Mesh(
+    new THREE.CylinderGeometry(0, 4, 5, 3),
+    materials
+  ); //createPlayerGeometry(10, new THREE.Vector3(0, 0, 10));
   scene.add(player);
   return player;
 };
 
 const createPlayerGeometry = (size: number, pos: THREE.Vector3) => {
-  const materials = new THREE.MeshStandardMaterial({ color: 0x0095dd });
+  const materials = new THREE.MeshPhongMaterial({ color: 0x0095dd });
   const boxGeometry = new THREE.BoxGeometry(size, size, size);
 
   const enemy = new THREE.Mesh(boxGeometry, materials);
