@@ -6,7 +6,7 @@ import styled from "styled-components";
 const Overlay = () => {
   return (
     <StyledOverlay>
-      <h1>KILL ALL MAGENTO</h1>
+      <h1>CLEAR ALL MAGENTO TASKS</h1>
     </StyledOverlay>
   );
 };
