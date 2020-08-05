@@ -204,7 +204,6 @@ const createProjectile = (scene: THREE.Scene, origin: THREE.Vector3) => {
 
 export default (props: CanvasProps) => {
   const container = useRef<HTMLCanvasElement | undefined>();
-  const gl = useRef<WebGLRenderingContext | null>(null);
 
   // setup gl and canvas when it is setup
   useEffect(() => {
