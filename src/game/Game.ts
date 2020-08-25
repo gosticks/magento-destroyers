@@ -1,12 +1,14 @@
 import * as THREE from "three";
 import StarsEffect from "./effects/StarsEffect";
 import { IEnemy, spawnEnemyGrid } from "./Enemy";
-import createInputHandler, { KeyCodes } from "./inputHandler";
+import createInputHandler, { KeyCodes } from "./utils/inputHandler";
 import { createPlayerInstance, IPlayer } from "./Player";
 import { createProjectile } from "./Projectile";
 import AbstractEffect from "./effects/AbstractEffect";
 
 export interface IGameState {
+  score: number;
+
   player: IPlayer;
   enemies: IEnemy[];
   // TODO: create types
@@ -35,6 +37,13 @@ class Game {
   private scene!: THREE.Scene;
   private camera!: THREE.Camera;
   private effectsPipeline: AbstractEffect[] = [];
+
+  // public API hooks
+  public onScoreChanged?: (
+    newScore: number,
+    oldScore: number,
+    extra: any
+  ) => void;
 
   constructor(
     private width: number,
@@ -78,11 +87,6 @@ class Game {
 
     this.scene = scene;
     this.camera = camera;
-    // const composer = new EffectComposer(renderer);
-    // const renderPass = new RenderPass(scene, camera);
-    // const badTVPass = new ShaderPass(BadTvShader);
-    // composer.addPass(renderPass);
-    // composer.addPass(badTVPass);
 
     this.el.appendChild(this.renderer.domElement);
 
@@ -141,6 +145,7 @@ class Game {
     ]);
 
     return {
+      score: 0,
       player: player,
       enemies: spawnEnemyGrid(this.scene, {
         origin: new THREE.Vector3(-30, 0, -150),
@@ -205,11 +210,25 @@ class Game {
           enemy.mesh.position.y -= 70;
           this.scene.remove(projectile);
           this.scene.remove(enemy.mesh);
+          this.onEnemyKilled(enemy);
           this.state.projectiles.splice(j, 1);
           this.state.enemies.splice(i, 1);
         }
       });
     });
+  };
+
+  private onEnemyKilled = (enemy: IEnemy) => {
+    this.updateScore(50);
+  };
+
+  private updateScore = (amount: number) => {
+    const oldScore = this.state.score;
+    this.state.score += amount;
+
+    if (this.onScoreChanged) {
+      this.onScoreChanged(this.state.score, oldScore, {});
+    }
   };
 }
 

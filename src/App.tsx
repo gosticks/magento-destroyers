@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import "./App.css";
 import Game from "./components/GameView";
 import styled from "styled-components";
@@ -11,10 +11,16 @@ const Overlay = () => {
   );
 };
 
-const Score = () => {
+const Score = (props: { score: number }) => {
   return (
     <StyledScore>
-      <h2>SCORE: 00000000</h2>
+      <h2>
+        SCORE:
+        {props.score.toLocaleString("en", {
+          minimumIntegerDigits: 8,
+          useGrouping: false,
+        })}
+      </h2>
     </StyledScore>
   );
 };
@@ -39,10 +45,15 @@ const StyledOverlay = styled.div`
 `;
 
 function App() {
+  const [score, setScore] = useState(0);
   return (
     <div className="App">
-      <Game width={window.innerWidth} height={window.innerHeight} />
-      <Score />
+      <Game
+        onScoreChanged={setScore}
+        width={window.innerWidth}
+        height={window.innerHeight}
+      />
+      <Score score={score} />
       <Overlay />
     </div>
   );

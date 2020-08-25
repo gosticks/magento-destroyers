@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { getTextureLoader } from "./textureUtils";
+import { getTextureLoader } from "./utils/textureUtils";
 
 export interface IEnemy {
   mesh: THREE.Mesh;
