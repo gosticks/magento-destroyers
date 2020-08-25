@@ -1,6 +1,6 @@
 import React from "react";
 import "./App.css";
-import Game from "./game/Game";
+import Game from "./components/GameView";
 import styled from "styled-components";
 
 const Overlay = () => {
