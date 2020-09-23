@@ -31,6 +31,7 @@ class Game {
     far: 500,
   };
 
+  private paused: boolean = false;
   private loader = new THREE.TextureLoader();
   private renderer!: THREE.WebGLRenderer;
   private state!: IGameState;
@@ -44,6 +45,9 @@ class Game {
     oldScore: number,
     extra: any
   ) => void;
+
+  public onPaused?: () => void;
+  public onResumed?: () => void;
 
   constructor(
     private width: number,
@@ -128,14 +132,19 @@ class Game {
           player.mesh.position.x -= stepSize;
         },
       ],
-
       [
         KeyCodes.rightArrow,
         () => {
           player.mesh.position.x += stepSize;
         },
       ],
-
+      [
+        KeyCodes.escape,
+        () => {
+          console.log("Escape pressed");
+          this.paused ? this.resume() : this.pause();
+        },
+      ],
       [
         KeyCodes.space,
         () => {
@@ -163,11 +172,33 @@ class Game {
     };
   };
 
+  private pause = () => {
+    this.paused = true;
+    if (this.onPaused) {
+      this.onPaused();
+    }
+  };
+
+  private resume = () => {
+    console.log("Resume!!!");
+    this.paused = false;
+    if (this.onResumed) {
+      this.onResumed();
+    }
+    // this.render();
+  };
+
   private render = () => {
-    // update game logic
-    this.update();
+    this.state.inputHandler.run();
 
     requestAnimationFrame(this.render);
+
+    if (this.paused) {
+      return;
+    }
+
+    // update game logic
+    this.update();
 
     // render scene and effects
     this.renderer.render(this.scene, this.camera);
@@ -181,8 +212,6 @@ class Game {
    */
   // TODO: bind to external timer not the framerate
   private update = () => {
-    this.state.inputHandler.run();
-
     this.state.projectiles.forEach((projectile) => {
       projectile.position.z -= 0.5;
       if (projectile.position.z >= Game.globalOptions.far) {

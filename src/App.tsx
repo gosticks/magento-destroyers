@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./App.css";
 import Game from "./components/GameView";
 import styled from "styled-components";
+import PauseOverlay from "./components/PauseOverlay";
 
 const Overlay = () => {
   return (
@@ -44,7 +45,8 @@ const StyledOverlay = styled.div`
   font-family: "Press Start 2P", cursive;
 `;
 
-function App() {
+const App = () => {
+  const [paused, setPaused] = useState(false);
   const [score, setScore] = useState(0);
   return (
     <div className="App">
@@ -52,11 +54,14 @@ function App() {
         onScoreChanged={setScore}
         width={window.innerWidth}
         height={window.innerHeight}
+        onPaused={() => setPaused(true)}
+        onResumed={() => setPaused(false)}
       />
       <Score score={score} />
       <Overlay />
+      {paused && <PauseOverlay />}
     </div>
   );
-}
+};
 
 export default App;

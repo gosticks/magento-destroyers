@@ -5,6 +5,8 @@ export interface CanvasProps {
   width: number;
   height: number;
   onScoreChanged: (newScore: number, oldScore: number, extra: any) => void;
+  onPaused?: () => void;
+  onResumed?: () => void;
 }
 
 export default (props: CanvasProps) => {
@@ -27,6 +29,18 @@ export default (props: CanvasProps) => {
       game.current.onScoreChanged = props.onScoreChanged;
     }
   }, [props.onScoreChanged, game]);
+
+  useEffect(() => {
+    if (game.current) {
+      game.current.onPaused = props.onPaused;
+    }
+  }, [props.onPaused, game]);
+
+  useEffect(() => {
+    if (game.current) {
+      game.current.onResumed = props.onResumed;
+    }
+  }, [props.onResumed, game]);
 
   // FIXME: read up on ref usage with modern TS
   return <div ref={container as any}></div>;
