@@ -9,6 +9,8 @@ export const createPlayerInstance = (): IPlayer => {
     new THREE.CylinderGeometry(0, 4, 5, 3),
     materials
   );
+
+  mesh.position.z = 10;
   return {
     mesh,
     health: 10,

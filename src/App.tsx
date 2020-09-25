@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import "./App.css";
 import Game from "./components/GameView";
 import styled from "styled-components";
 import PauseOverlay from "./components/PauseOverlay";
+import ControlDelegate from "./game/ControlDelegate";
 
 const Overlay = () => {
   return (
@@ -48,14 +49,20 @@ const StyledOverlay = styled.div`
 const App = () => {
   const [paused, setPaused] = useState(false);
   const [score, setScore] = useState(0);
+
+  const gameDelegate = useRef<ControlDelegate>({
+    onComplete: () => alert("you have completed the level"),
+    onResumed: () => setPaused(false),
+    onPaused: () => setPaused(true),
+    onScoreChanged: (value: number) => setScore(value),
+  });
+
   return (
     <div className="App">
       <Game
-        onScoreChanged={setScore}
+        {...(gameDelegate.current ?? {})}
         width={window.innerWidth}
         height={window.innerHeight}
-        onPaused={() => setPaused(true)}
-        onResumed={() => setPaused(false)}
       />
       <Score score={score} />
       <Overlay />

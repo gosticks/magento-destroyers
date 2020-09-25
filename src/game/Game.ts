@@ -94,13 +94,34 @@ class Game {
     this.camera = camera;
 
     this.el.appendChild(this.renderer.domElement);
-
     this.state = this.setupGameState();
+    this.drawDeadline();
     this.setupGameEffects();
 
     // start render loop
     this.render();
   }
+
+  private drawDeadline = () => {
+    //create a blue LineBasicMaterial
+    const material = new THREE.LineDashedMaterial({
+      color: 0xff0000,
+      linewidth: 10,
+      scale: 2,
+      dashSize: 5,
+      gapSize: 5,
+    });
+    const points = [];
+    points.push(new THREE.Vector3(-1000, 0, 0));
+    points.push(new THREE.Vector3(1000, 0, 0));
+
+    const geometry = new THREE.Geometry();
+    geometry.vertices = points;
+
+    const line = new THREE.Line(geometry, material);
+    line.computeLineDistances();
+    this.scene.add(line);
+  };
 
   private setupGameEffects = () => {
     this.effectsPipeline.push(new StarsEffect(this.scene));
@@ -237,7 +258,7 @@ class Game {
       enemy.mesh.position.z += 0.08;
       enemy.mesh.position.x += enemyStepX;
 
-      if (enemy.mesh.position.z >= this.state.player.mesh.position.z) {
+      if (enemy.mesh.position.z >= -5) {
         this.gameOver(enemy);
         return;
       }
