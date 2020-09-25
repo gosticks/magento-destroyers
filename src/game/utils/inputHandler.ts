@@ -3,6 +3,12 @@ const createInputHandler = () => {
     pressedKeys: new Map<number, boolean>(),
     onKeyUp: (e: KeyboardEvent) => {
       instance.pressedKeys.delete(e.keyCode);
+
+      // handle single key press handlers
+      const handler = instance.keySingleHandlers.get(e.keyCode);
+      if (handler) {
+        handler();
+      }
     },
     onKeyDown: (e: KeyboardEvent) => {
       instance.pressedKeys.set(e.keyCode, true);
@@ -24,6 +30,7 @@ const createInputHandler = () => {
       console.error("destroy inputHandler not implemented yet.");
     },
     keyHandlers: new Map<KeyCodes, () => void>(),
+    keySingleHandlers: new Map<KeyCodes, () => void>(),
   };
   document.onkeydown = instance.onKeyDown;
   document.onkeyup = instance.onKeyUp;

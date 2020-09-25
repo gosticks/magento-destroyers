@@ -48,6 +48,7 @@ class Game {
 
   public onPaused?: () => void;
   public onResumed?: () => void;
+  public onGameOver?: () => void;
 
   constructor(
     private width: number,
@@ -139,16 +140,20 @@ class Game {
         },
       ],
       [
+        KeyCodes.space,
+        () => {
+          shoot();
+        },
+      ],
+    ]);
+
+    // setup handlers that should only be triggered on key up
+    inputHandler.keySingleHandlers = new Map<KeyCodes, () => void>([
+      [
         KeyCodes.escape,
         () => {
           console.log("Escape pressed");
           this.paused ? this.resume() : this.pause();
-        },
-      ],
-      [
-        KeyCodes.space,
-        () => {
-          shoot();
         },
       ],
     ]);
@@ -229,7 +234,13 @@ class Game {
     this.state.options.offset += enemyStepX;
     this.state.enemies.forEach((enemy, i) => {
       enemy.mesh.rotation.y += 0.01;
+      enemy.mesh.position.z += 0.08;
       enemy.mesh.position.x += enemyStepX;
+
+      if (enemy.mesh.position.z >= this.state.player.mesh.position.z) {
+        this.gameOver(enemy);
+        return;
+      }
 
       this.state.projectiles.forEach((projectile, j) => {
         if (
@@ -245,6 +256,13 @@ class Game {
         }
       });
     });
+  };
+
+  private gameOver = (enemy: IEnemy) => {
+    this.paused = true;
+    if (this.onGameOver) {
+      this.onGameOver();
+    }
   };
 
   private onEnemyKilled = (enemy: IEnemy) => {
