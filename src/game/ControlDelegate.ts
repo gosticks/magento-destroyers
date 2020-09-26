@@ -4,7 +4,7 @@ interface ControlDelegate {
   onPaused?: () => void;
   onResumed?: () => void;
   onEvent?: (event: Event) => void;
-  onScoreChanged: (value: number) => void;
+  onScoreChanged: (value: number, oldValue: number) => void;
 }
 
 export default ControlDelegate;

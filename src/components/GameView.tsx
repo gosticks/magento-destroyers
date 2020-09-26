@@ -1,12 +1,11 @@
 import React, { useRef, useEffect } from "react";
+import ControlDelegate from "../game/ControlDelegate";
 import Game from "../game/Game";
 
 export interface CanvasProps {
   width: number;
   height: number;
-  onScoreChanged: (newScore: number, oldScore: number, extra: any) => void;
-  onPaused?: () => void;
-  onResumed?: () => void;
+  delegate: ControlDelegate;
 }
 
 export default (props: CanvasProps) => {
@@ -26,21 +25,9 @@ export default (props: CanvasProps) => {
 
   useEffect(() => {
     if (game.current) {
-      game.current.onScoreChanged = props.onScoreChanged;
+      game.current.delegate = props.delegate;
     }
-  }, [props.onScoreChanged, game]);
-
-  useEffect(() => {
-    if (game.current) {
-      game.current.onPaused = props.onPaused;
-    }
-  }, [props.onPaused, game]);
-
-  useEffect(() => {
-    if (game.current) {
-      game.current.onResumed = props.onResumed;
-    }
-  }, [props.onResumed, game]);
+  }, [props.delegate, game]);
 
   // FIXME: read up on ref usage with modern TS
   return <div ref={container as any}></div>;

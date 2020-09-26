@@ -5,6 +5,7 @@ import createInputHandler, { KeyCodes } from "./utils/inputHandler";
 import { createPlayerInstance, IPlayer } from "./Player";
 import { createProjectile } from "./Projectile";
 import AbstractEffect from "./effects/AbstractEffect";
+import ControlDelegate from "./ControlDelegate";
 
 export interface IGameState {
   score: number;
@@ -31,6 +32,8 @@ class Game {
     far: 500,
   };
 
+  public delegate?: ControlDelegate;
+
   private paused: boolean = false;
   private loader = new THREE.TextureLoader();
   private renderer!: THREE.WebGLRenderer;
@@ -38,17 +41,6 @@ class Game {
   private scene!: THREE.Scene;
   private camera!: THREE.Camera;
   private effectsPipeline: AbstractEffect[] = [];
-
-  // public API hooks
-  public onScoreChanged?: (
-    newScore: number,
-    oldScore: number,
-    extra: any
-  ) => void;
-
-  public onPaused?: () => void;
-  public onResumed?: () => void;
-  public onGameOver?: () => void;
 
   constructor(
     private width: number,
@@ -86,8 +78,8 @@ class Game {
       Game.globalOptions.far
     );
     camera.position.z = 80;
-    camera.position.y = 60;
-    camera.rotation.set(-0.45, 0, 0);
+    camera.position.y = 150;
+    camera.rotation.set(-0.75, 0, 0);
     scene.add(camera);
 
     this.scene = scene;
@@ -183,7 +175,7 @@ class Game {
       score: 0,
       player: player,
       enemies: spawnEnemyGrid(this.scene, {
-        origin: new THREE.Vector3(-30, 0, -150),
+        origin: new THREE.Vector3(-30, 0, -250),
         spacing: new THREE.Vector3(20, 0, 20),
         rows: 5,
         cols: 5,
@@ -200,16 +192,16 @@ class Game {
 
   private pause = () => {
     this.paused = true;
-    if (this.onPaused) {
-      this.onPaused();
+    if (this.delegate?.onPaused) {
+      this.delegate!.onPaused();
     }
   };
-
+  
   private resume = () => {
     console.log("Resume!!!");
     this.paused = false;
-    if (this.onResumed) {
-      this.onResumed();
+    if (this.delegate?.onResumed) {
+      this.delegate!.onResumed();
     }
     // this.render();
   };
@@ -281,8 +273,8 @@ class Game {
 
   private gameOver = (enemy: IEnemy) => {
     this.paused = true;
-    if (this.onGameOver) {
-      this.onGameOver();
+    if (this.delegate?.onGameOver) {
+      this.delegate.onGameOver("You suck!");
     }
   };
 
@@ -294,8 +286,8 @@ class Game {
     const oldScore = this.state.score;
     this.state.score += amount;
 
-    if (this.onScoreChanged) {
-      this.onScoreChanged(this.state.score, oldScore, {});
+    if (this.delegate?.onScoreChanged) {
+      this.delegate?.onScoreChanged(this.state.score, oldScore);
     }
   };
 }
