@@ -60,7 +60,7 @@ const App = () => {
   return (
     <div className="App">
       <Game
-        {...(gameDelegate.current ?? {})}
+        delegate={gameDelegate.current}
         width={window.innerWidth}
         height={window.innerHeight}
       />
