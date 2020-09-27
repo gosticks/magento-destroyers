@@ -7,9 +7,7 @@ import ControlDelegate from "./game/ControlDelegate";
 
 const Overlay = () => {
   return (
-    <StyledOverlay>
-      <h1>CLEAR ALL MAGENTO TASKS</h1>
-    </StyledOverlay>
+    <StyledOverlay>{/* <h1>CLEAR ALL MAGENTO TASKS</h1> */}</StyledOverlay>
   );
 };
 

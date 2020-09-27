@@ -169,6 +169,12 @@ class Game {
           this.paused ? this.resume() : this.pause();
         },
       ],
+      [
+        KeyCodes.keyL,
+        () => {
+          this.startLevel();
+        },
+      ],
     ]);
 
     return {
@@ -196,7 +202,7 @@ class Game {
       this.delegate!.onPaused();
     }
   };
-  
+
   private resume = () => {
     console.log("Resume!!!");
     this.paused = false;
@@ -223,6 +229,23 @@ class Game {
 
     this.effectsPipeline.forEach((effect) => effect.update(this.state));
     // animateBgEffect(this.stars);
+  };
+
+  public startLevel = () => {
+    // reset player position
+    this.state.player.mesh.position.x = 0;
+
+    // remove all enemies
+    this.state.enemies.forEach((enemy) => this.scene.remove(enemy.mesh));
+
+    // spawn new enemies
+    this.state.enemies = spawnEnemyGrid(this.scene, {
+      origin: new THREE.Vector3(-30, 0, -250),
+      spacing: new THREE.Vector3(20, 0, 20),
+      rows: 5,
+      cols: 5,
+      enemyOptions: { size: 5, initialHealth: 10 },
+    });
   };
 
   /**
