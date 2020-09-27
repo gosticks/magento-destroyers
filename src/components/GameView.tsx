@@ -1,6 +1,7 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import ControlDelegate from "../game/ControlDelegate";
 import Game from "../game/Game";
+import LevelOverlay from "./LevelOverlay";
 
 export interface CanvasProps {
   width: number;
@@ -35,5 +36,10 @@ export default (props: CanvasProps) => {
   }, [props.delegate, game]);
 
   // FIXME: read up on ref usage with modern TS
-  return <div ref={container as any}></div>;
+  return (
+    <>
+      <div ref={container as any}></div>
+      {/* {<LevelOverlay level={1} />} */}
+    </>
+  );
 };
