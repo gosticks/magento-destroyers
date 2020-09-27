@@ -6,11 +6,16 @@ export interface CanvasProps {
   width: number;
   height: number;
   delegate: ControlDelegate;
+  started: boolean;
 }
 
 export default (props: CanvasProps) => {
   const container = useRef<HTMLCanvasElement | undefined>();
   const game = useRef<Game | undefined>();
+
+  useEffect(() => {
+    game.current?.onStartGame();
+  }, [props.started]);
 
   // setup gl and canvas when it is setup
   useEffect(() => {

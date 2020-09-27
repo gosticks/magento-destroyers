@@ -1,9 +1,17 @@
 import React, { useRef, useState } from "react";
 import "./App.css";
 import Game from "./components/GameView";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import PauseOverlay from "./components/PauseOverlay";
 import ControlDelegate from "./game/ControlDelegate";
+import StartScreen from "./components/StartScreen";
+
+createGlobalStyle`
+  body {
+    font-family: "Press Start 2P", cursive;
+    color: #000;
+  }
+`;
 
 const Overlay = () => {
   return (
@@ -24,7 +32,6 @@ const Score = (props: { score: number }) => {
     </StyledScore>
   );
 };
-
 const StyledScore = styled.div`
   position: absolute;
   left: 25px;
@@ -46,6 +53,7 @@ const StyledOverlay = styled.div`
 
 const App = () => {
   const [paused, setPaused] = useState(false);
+  const [started, setStarted] = useState(false);
   const [score, setScore] = useState(0);
 
   const gameDelegate = useRef<ControlDelegate>({
@@ -53,6 +61,7 @@ const App = () => {
     onResumed: () => setPaused(false),
     onPaused: () => setPaused(true),
     onScoreChanged: (value: number) => setScore(value),
+    onStartGame: () => setStarted(true),
   });
 
   return (
@@ -61,10 +70,16 @@ const App = () => {
         delegate={gameDelegate.current}
         width={window.innerWidth}
         height={window.innerHeight}
+        started={started}
       />
-      <Score score={score} />
-      <Overlay />
+      {started && (
+        <>
+          <Score score={score} />
+          <Overlay />
+        </>
+      )}
       {paused && <PauseOverlay />}
+      {!started && <StartScreen onStart={() => setStarted(true)} />}
     </div>
   );
 };

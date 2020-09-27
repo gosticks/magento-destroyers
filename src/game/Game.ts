@@ -14,7 +14,7 @@ export interface IGameState {
   enemies: IEnemy[];
   // TODO: create types
   projectiles: any[];
-  inputHandler: any;
+  inputHandler: ReturnType<typeof createInputHandler>;
 
   // TODO: move this away
   options: {
@@ -34,6 +34,7 @@ class Game {
 
   public delegate?: ControlDelegate;
 
+  private started: boolean = false;
   private paused: boolean = false;
   private loader = new THREE.TextureLoader();
   private renderer!: THREE.WebGLRenderer;
@@ -86,12 +87,9 @@ class Game {
     this.camera = camera;
 
     this.el.appendChild(this.renderer.domElement);
-    this.state = this.setupGameState();
+    // this.state = this.setupGameState();
     this.drawDeadline();
     this.setupGameEffects();
-
-    // start render loop
-    this.render();
   }
 
   private drawDeadline = () => {
@@ -122,7 +120,33 @@ class Game {
   private setupGameState = (): IGameState => {
     const player = createPlayerInstance();
     this.scene.add(player.mesh);
+
+    return {
+      score: 0,
+      player: player,
+      enemies: spawnEnemyGrid(this.scene, {
+        origin: new THREE.Vector3(-30, 0, -250),
+        spacing: new THREE.Vector3(20, 0, 20),
+        rows: 5,
+        cols: 5,
+        enemyOptions: { size: 5, initialHealth: 10 },
+      }),
+      projectiles: [],
+      inputHandler: this.setupGameInputHandling(player),
+      options: {
+        offset: 0,
+        direction: -1,
+      },
+    };
+  };
+
+  public setupGameInputHandling = (player: IPlayer) => {
     const stepSize = 2;
+
+    // remove old key handlers if present
+    if (this.state && this.state.inputHandler) {
+      this.state.inputHandler.destroy();
+    }
 
     // TODO: move
     const shoot = () => {
@@ -177,23 +201,27 @@ class Game {
       ],
     ]);
 
-    return {
-      score: 0,
-      player: player,
-      enemies: spawnEnemyGrid(this.scene, {
-        origin: new THREE.Vector3(-30, 0, -250),
-        spacing: new THREE.Vector3(20, 0, 20),
-        rows: 5,
-        cols: 5,
-        enemyOptions: { size: 5, initialHealth: 10 },
-      }),
-      projectiles: [],
-      inputHandler: inputHandler,
-      options: {
-        offset: 0,
-        direction: -1,
-      },
-    };
+    return inputHandler;
+  };
+
+  public onStartGame = () => {
+    if (this.delegate && this.delegate.onStartGame) {
+      this.delegate.onStartGame();
+    }
+
+    // only start if not already started
+    if (this.started) {
+      return;
+    }
+
+    // setup initial game state
+    this.state = this.setupGameState();
+
+    this.started = true;
+    this.startLevel();
+
+    // start render loop
+    this.render();
   };
 
   private pause = () => {
@@ -237,6 +265,9 @@ class Game {
 
     // remove all enemies
     this.state.enemies.forEach((enemy) => this.scene.remove(enemy.mesh));
+
+    // remove all projectiles
+    this.state.projectiles.forEach((p) => this.scene.remove(p.mesh));
 
     // spawn new enemies
     this.state.enemies = spawnEnemyGrid(this.scene, {
