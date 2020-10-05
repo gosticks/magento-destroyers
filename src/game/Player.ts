@@ -1,25 +1,30 @@
 import * as THREE from "three";
-import { IEnemy } from "./Enemy";
+import { createProjectile } from "./Projectile";
 
-export interface IPlayer extends IEnemy {}
+export default class Player {
+  public canShoot: Boolean = true;
+  public mesh: THREE.Mesh;
+  public projectiles: ReturnType<typeof createProjectile>[] = [];
 
-export const createPlayerInstance = (): IPlayer => {
-  const materials = new THREE.MeshPhongMaterial({ color: 0xddd500 });
-  const mesh = new THREE.Mesh(
-    new THREE.CylinderGeometry(0, 4, 5, 3),
-    materials
-  );
+  constructor(private scene: THREE.Scene) {
+    const materials = new THREE.MeshPhongMaterial({ color: 0xddd500 });
+    const mesh = new THREE.Mesh(
+      new THREE.CylinderGeometry(0, 4, 5, 3),
+      materials
+    );
 
-  mesh.position.z = 10;
-  return {
-    mesh,
-    health: 10,
-    canShoot: true,
+    mesh.position.z = 10;
+    this.mesh = mesh;
+  }
+
+  public shoot = () => {
+    if (!this.canShoot) {
+      return;
+    }
+    this.projectiles.push(createProjectile(this.scene, this.mesh.position));
+    this.canShoot = false;
+    setTimeout(() => {
+      this.canShoot = true;
+    }, 500);
   };
-};
-
-export const addPlayerToScene = (scene: THREE.Scene): IPlayer => {
-  const player = createPlayerInstance();
-  scene.add(player.mesh);
-  return player;
-};
+}

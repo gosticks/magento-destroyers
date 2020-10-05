@@ -10,6 +10,7 @@ createGlobalStyle`
   body {
     font-family: "Press Start 2P", cursive;
     color: #000;
+    background-color: #000;
   }
 `;
 
@@ -32,10 +33,18 @@ const Score = (props: { score: number }) => {
     </StyledScore>
   );
 };
+
+const AppContainer = styled.div`
+  position: relative;
+  max-width: 1920px;
+  margin-left: 0;
+  margin-right: 0;
+`;
+
 const StyledScore = styled.div`
   position: absolute;
-  left: 25px;
-  top: 25px;
+  left: 5%;
+  top: 5%;
   color: #fff;
 `;
 const StyledOverlay = styled.div`
@@ -47,6 +56,21 @@ const StyledOverlay = styled.div`
   justify-content: center;
   align-items: center;
   color: #fff;
+`;
+
+const StyledTvOverlay = styled.img`
+  display: block;
+  width: 100%;
+  z-index: 10;
+  position: relative;
+`;
+
+const StyledGame = styled(Game)``;
+
+const GameContainer = styled.div`
+  position: absolute;
+  left: 13%;
+  top: 18%;
 `;
 
 const App = () => {
@@ -64,20 +88,20 @@ const App = () => {
 
   return (
     <div className="App">
-      <Game
-        delegate={gameDelegate.current}
-        width={window.innerWidth}
-        height={window.innerHeight}
-        started={started}
-      />
-      {started && (
-        <>
-          <Score score={score} />
-          <Overlay />
-        </>
-      )}
-      {paused && <PauseOverlay />}
-      {!started && <StartScreen onStart={() => setStarted(true)} />}
+      <AppContainer>
+        <GameContainer>
+          <StyledGame delegate={gameDelegate.current} started={started} />
+          {started && (
+            <>
+              <Score score={score} />
+              <Overlay />
+            </>
+          )}
+          {paused && <PauseOverlay />}
+          {!started && <StartScreen onStart={() => setStarted(true)} />}
+        </GameContainer>
+        <StyledTvOverlay src="/screen.png" />
+      </AppContainer>
     </div>
   );
 };

@@ -1,19 +1,16 @@
 import * as THREE from "three";
 import StarsEffect from "./effects/StarsEffect";
-import { IEnemy, spawnEnemyGrid } from "./Enemy";
+import { IEnemy, spawnEnemyGrid, loadEnemyMesh } from "./Enemy";
 import createInputHandler, { KeyCodes } from "./utils/inputHandler";
-import { createPlayerInstance, IPlayer } from "./Player";
-import { createProjectile } from "./Projectile";
+import Player from "./Player";
 import AbstractEffect from "./effects/AbstractEffect";
 import ControlDelegate from "./ControlDelegate";
 
 export interface IGameState {
   score: number;
 
-  player: IPlayer;
+  player: Player;
   enemies: IEnemy[];
-  // TODO: create types
-  projectiles: any[];
   inputHandler: ReturnType<typeof createInputHandler>;
 
   // TODO: move this away
@@ -46,32 +43,31 @@ class Game {
   constructor(
     private width: number,
     private height: number,
+    private pixelRatio: number,
     private el: HTMLElement
   ) {
     // setup texture loader
     this.loader.setPath("textures/");
 
-    this.setupGame();
+    // setup all assets
+    Promise.all([loadEnemyMesh()])
+      .then(() => {
+        this.setupGame();
+      })
+      .catch((e) => console.error("Failed to setup", e));
   }
 
-  private setupGame() {
-    this.renderer = new THREE.WebGLRenderer({
-      antialias: true,
-    });
-    this.renderer.setSize(this.width, this.height);
-    this.renderer.setClearColor(0x000000, 1);
+  // update camera and renderer for a new resolution
+  // this may also move the camera to fit the viewport
+  public updateSize = (
+    width: number,
+    height: number,
+    pixelRatio: number = 1
+  ) => {
+    this.renderer.setSize(width, height);
+    this.renderer.setPixelRatio(pixelRatio);
 
-    const scene = new THREE.Scene();
-
-    // Lights
-    scene.add(new THREE.AmbientLight(0x111111));
-
-    var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(1, 1, 1).normalize();
-    scene.add(directionalLight);
-
-    const aspect = this.width / this.height;
-
+    const aspect = width / height;
     const camera = new THREE.PerspectiveCamera(
       Game.globalOptions.fov,
       aspect,
@@ -80,87 +76,25 @@ class Game {
     );
     camera.position.z = 80;
     camera.position.y = 150;
+    // camera.position.x = 100;
     camera.rotation.set(-0.75, 0, 0);
-    scene.add(camera);
-
-    this.scene = scene;
+    this.scene.add(camera);
+    if (this.camera) {
+      this.scene.remove(this.camera);
+    }
     this.camera = camera;
-
-    this.el.appendChild(this.renderer.domElement);
-    // this.state = this.setupGameState();
-    this.drawDeadline();
-    this.setupGameEffects();
-  }
-
-  private drawDeadline = () => {
-    //create a blue LineBasicMaterial
-    const material = new THREE.LineDashedMaterial({
-      color: 0xff0000,
-      linewidth: 10,
-      scale: 2,
-      dashSize: 5,
-      gapSize: 5,
-    });
-    const points = [];
-    points.push(new THREE.Vector3(-1000, 0, 0));
-    points.push(new THREE.Vector3(1000, 0, 0));
-
-    const geometry = new THREE.Geometry();
-    geometry.vertices = points;
-
-    const line = new THREE.Line(geometry, material);
-    line.computeLineDistances();
-    this.scene.add(line);
+    this.width = width;
+    this.height = height;
+    this.pixelRatio = pixelRatio;
   };
 
-  private setupGameEffects = () => {
-    this.effectsPipeline.push(new StarsEffect(this.scene));
-  };
-
-  private setupGameState = (): IGameState => {
-    const player = createPlayerInstance();
-    this.scene.add(player.mesh);
-
-    return {
-      score: 0,
-      player: player,
-      enemies: spawnEnemyGrid(this.scene, {
-        origin: new THREE.Vector3(-30, 0, -250),
-        spacing: new THREE.Vector3(20, 0, 20),
-        rows: 5,
-        cols: 5,
-        enemyOptions: { size: 5, initialHealth: 10 },
-      }),
-      projectiles: [],
-      inputHandler: this.setupGameInputHandling(player),
-      options: {
-        offset: 0,
-        direction: -1,
-      },
-    };
-  };
-
-  public setupGameInputHandling = (player: IPlayer) => {
+  public setupGameInputHandling = (player: Player) => {
     const stepSize = 2;
 
     // remove old key handlers if present
     if (this.state && this.state.inputHandler) {
       this.state.inputHandler.destroy();
     }
-
-    // TODO: move
-    const shoot = () => {
-      if (!this.state.player.canShoot) {
-        return;
-      }
-      this.state.projectiles.push(
-        createProjectile(this.scene, this.state.player.mesh.position)
-      );
-      this.state.player.canShoot = false;
-      setTimeout(() => {
-        this.state.player.canShoot = true;
-      }, 500);
-    };
 
     const inputHandler = createInputHandler();
     inputHandler.keyHandlers = new Map<KeyCodes, () => void>([
@@ -176,12 +110,7 @@ class Game {
           player.mesh.position.x += stepSize;
         },
       ],
-      [
-        KeyCodes.space,
-        () => {
-          shoot();
-        },
-      ],
+      [KeyCodes.space, player.shoot],
     ]);
 
     // setup handlers that should only be triggered on key up
@@ -224,6 +153,100 @@ class Game {
     this.render();
   };
 
+  public startLevel = () => {
+    // reset player position
+    this.state.player.mesh.position.x = 0;
+
+    // remove all enemies
+    this.state.enemies.forEach((enemy) => this.scene.remove(enemy.mesh));
+
+    // remove all projectiles
+    this.state.player.projectiles.forEach((p) => this.scene.remove(p));
+
+    // spawn new enemies
+    this.state.enemies = spawnEnemyGrid(this.scene, {
+      origin: new THREE.Vector3(-30, 0, -250),
+      spacing: new THREE.Vector3(20, 0, 20),
+      rows: 5,
+      cols: 5,
+      enemyOptions: { size: 5, initialHealth: 10 },
+    });
+  };
+
+  private testLoadObjFile = async () => {};
+
+  private setupGame() {
+    this.renderer = new THREE.WebGLRenderer({
+      antialias: true,
+    });
+    this.renderer.setClearColor(0x000000, 1);
+
+    const scene = new THREE.Scene();
+    this.scene = scene;
+
+    // Lights
+    scene.add(new THREE.AmbientLight(0x111111));
+
+    var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(1, 1, 1).normalize();
+    scene.add(directionalLight);
+
+    this.updateSize(this.width, this.height, this.pixelRatio);
+
+    this.el.appendChild(this.renderer.domElement);
+    // this.state = this.setupGameState();
+    this.drawDeadline();
+    this.setupGameEffects();
+
+    this.testLoadObjFile();
+  }
+
+  private drawDeadline = () => {
+    //create a blue LineBasicMaterial
+    const material = new THREE.LineDashedMaterial({
+      color: 0xff0000,
+      linewidth: 10,
+      scale: 2,
+      dashSize: 5,
+      gapSize: 5,
+    });
+    const points = [];
+    points.push(new THREE.Vector3(-1000, 0, 0));
+    points.push(new THREE.Vector3(1000, 0, 0));
+
+    const geometry = new THREE.Geometry();
+    geometry.vertices = points;
+
+    const line = new THREE.Line(geometry, material);
+    line.computeLineDistances();
+    this.scene.add(line);
+  };
+
+  private setupGameEffects = () => {
+    this.effectsPipeline.push(new StarsEffect(this.scene));
+  };
+
+  private setupGameState = (): IGameState => {
+    const player = new Player(this.scene);
+    this.scene.add(player.mesh);
+    return {
+      score: 0,
+      player: player,
+      enemies: spawnEnemyGrid(this.scene, {
+        origin: new THREE.Vector3(-30, 0, -250),
+        spacing: new THREE.Vector3(20, 0, 20),
+        rows: 5,
+        cols: 5,
+        enemyOptions: { size: 5, initialHealth: 10 },
+      }),
+      inputHandler: this.setupGameInputHandling(player),
+      options: {
+        offset: 0,
+        direction: -1,
+      },
+    };
+  };
+
   private pause = () => {
     this.paused = true;
     if (this.delegate?.onPaused) {
@@ -232,7 +255,6 @@ class Game {
   };
 
   private resume = () => {
-    console.log("Resume!!!");
     this.paused = false;
     if (this.delegate?.onResumed) {
       this.delegate!.onResumed();
@@ -259,32 +281,12 @@ class Game {
     // animateBgEffect(this.stars);
   };
 
-  public startLevel = () => {
-    // reset player position
-    this.state.player.mesh.position.x = 0;
-
-    // remove all enemies
-    this.state.enemies.forEach((enemy) => this.scene.remove(enemy.mesh));
-
-    // remove all projectiles
-    this.state.projectiles.forEach((p) => this.scene.remove(p.mesh));
-
-    // spawn new enemies
-    this.state.enemies = spawnEnemyGrid(this.scene, {
-      origin: new THREE.Vector3(-30, 0, -250),
-      spacing: new THREE.Vector3(20, 0, 20),
-      rows: 5,
-      cols: 5,
-      enemyOptions: { size: 5, initialHealth: 10 },
-    });
-  };
-
   /**
    * update game state
    */
   // TODO: bind to external timer not the framerate
   private update = () => {
-    this.state.projectiles.forEach((projectile) => {
+    this.state.player.projectiles.forEach((projectile) => {
       projectile.position.z -= 0.5;
       if (projectile.position.z >= Game.globalOptions.far) {
         projectile.remove();
@@ -309,7 +311,7 @@ class Game {
         return;
       }
 
-      this.state.projectiles.forEach((projectile, j) => {
+      this.state.player.projectiles.forEach((projectile, j) => {
         if (
           enemy.mesh.position.z - projectile.position.z >= 0 &&
           Math.abs(enemy.mesh.position.x - projectile.position.x) <= 5
@@ -318,7 +320,7 @@ class Game {
           this.scene.remove(projectile);
           this.scene.remove(enemy.mesh);
           this.onEnemyKilled(enemy);
-          this.state.projectiles.splice(j, 1);
+          this.state.player.projectiles.splice(j, 1);
           this.state.enemies.splice(i, 1);
         }
       });

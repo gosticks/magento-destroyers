@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { getTextureLoader } from "./utils/textureUtils";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
 export interface IEnemy {
   mesh: THREE.Mesh;
@@ -13,18 +14,18 @@ export interface IEnemyOptions {
 }
 
 const createEnemyMesh = (size: number, pos?: THREE.Vector3) => {
-  const enemyTexture = getTextureLoader().load("enemy.png");
-  const materials = [
-    new THREE.MeshStandardMaterial({ map: enemyTexture }),
-    new THREE.MeshStandardMaterial({ map: enemyTexture }),
-    new THREE.MeshStandardMaterial({ map: enemyTexture }),
-    new THREE.MeshStandardMaterial({ map: enemyTexture }),
-    new THREE.MeshStandardMaterial({ map: enemyTexture }),
-    new THREE.MeshStandardMaterial({ map: enemyTexture }),
-  ];
-  const boxGeometry = new THREE.BoxGeometry(size, size, size);
+  // const enemyTexture = getTextureLoader().load("enemy.png");
+  // const materials = [
+  //   new THREE.MeshStandardMaterial({ map: enemyTexture }),
+  //   new THREE.MeshStandardMaterial({ map: enemyTexture }),
+  //   new THREE.MeshStandardMaterial({ map: enemyTexture }),
+  //   new THREE.MeshStandardMaterial({ map: enemyTexture }),
+  //   new THREE.MeshStandardMaterial({ map: enemyTexture }),
+  //   new THREE.MeshStandardMaterial({ map: enemyTexture }),
+  // ];
+  // const boxGeometry = new THREE.BoxGeometry(size, size, size);
 
-  return new THREE.Mesh(boxGeometry, materials);
+  return enemyMesh!.clone(); //new THREE.Mesh(boxGeometry, materials);
 };
 
 // EnemySpawner method creates enemies in a scene
@@ -40,6 +41,31 @@ interface IEnemyGridSpawnOptions {
   origin: THREE.Vector3;
   enemyOptions: IEnemyOptions;
 }
+
+let enemyMesh: THREE.Mesh | null = null;
+
+export const loadEnemyMesh = async () => {
+  const loader = new GLTFLoader();
+  try {
+    const asset = await loader.loadAsync("enemy-2.gltf");
+    if (!asset) {
+      return;
+    }
+
+    const enemy = asset.scene.getObjectByName("Magento") as THREE.Mesh;
+
+    enemy.material = new THREE.MeshPhongMaterial({
+      color: 0xf15c22,
+    });
+    enemy.scale.setX(300);
+    enemy.scale.setY(300);
+    enemy.scale.setZ(300);
+    enemy.rotation.z = 3.15;
+    enemyMesh = enemy;
+  } catch (e) {
+    console.error(e);
+  }
+};
 
 /**
  * creates a grid of enemies in the scene
