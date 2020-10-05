@@ -9,7 +9,6 @@ const StyledButton = styled.button`
   color: #fff;
   padding: 0.9rem;
   font-size: 1.5rem;
-  font-family: "Press Start 2P", cursive;
   cursor: pointer;
 
   &:hover {

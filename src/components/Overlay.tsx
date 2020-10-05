@@ -9,7 +9,6 @@ const StyledOverlay = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: "Press Start 2P", cursive;
   background-color: rgba(0, 0, 0, 0.8);
   color: #fff;
 `;

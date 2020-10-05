@@ -37,7 +37,6 @@ const StyledScore = styled.div`
   left: 25px;
   top: 25px;
   color: #fff;
-  font-family: "Press Start 2P", cursive;
 `;
 const StyledOverlay = styled.div`
   position: absolute;
@@ -48,7 +47,6 @@ const StyledOverlay = styled.div`
   justify-content: center;
   align-items: center;
   color: #fff;
-  font-family: "Press Start 2P", cursive;
 `;
 
 const App = () => {
