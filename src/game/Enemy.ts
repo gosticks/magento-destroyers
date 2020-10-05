@@ -61,6 +61,7 @@ export const loadEnemyMesh = async () => {
     enemy.scale.setY(300);
     enemy.scale.setZ(300);
     enemy.rotation.z = 3.15;
+    enemy.rotation.x = 3.15;
     enemyMesh = enemy;
   } catch (e) {
     console.error(e);

@@ -302,7 +302,7 @@ class Game {
     let enemyStepX = 0.2 * this.state.options.direction;
     this.state.options.offset += enemyStepX;
     this.state.enemies.forEach((enemy, i) => {
-      enemy.mesh.rotation.y += 0.01;
+      enemy.mesh.rotation.z += 0.01;
       enemy.mesh.position.z += 0.08;
       enemy.mesh.position.x += enemyStepX;
 
