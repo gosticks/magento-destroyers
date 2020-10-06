@@ -24,11 +24,11 @@ export interface IGameState {
   };
 }
 
-const targetMovement = 50;
-
+const targetMovement = 25;
+const screenBounds = 75;
 class Game {
   static globalOptions = {
-    fov: 50,
+    fov: 60,
     near: 0.1,
     far: 500,
   };
@@ -106,13 +106,19 @@ class Game {
       [
         KeyCodes.leftArrow,
         () => {
-          player.mesh.position.x -= stepSize;
+          player.mesh.position.x = Math.max(
+            -screenBounds,
+            player.mesh.position.x - stepSize
+          );
         },
       ],
       [
         KeyCodes.rightArrow,
         () => {
-          player.mesh.position.x += stepSize;
+          player.mesh.position.x = Math.min(
+            screenBounds,
+            player.mesh.position.x + stepSize
+          );
         },
       ],
       [KeyCodes.space, player.shoot],
@@ -166,7 +172,7 @@ class Game {
     this.state.enemies.forEach((enemy) => this.scene.remove(enemy.mesh));
 
     // remove all projectiles
-    this.state.player.projectiles.forEach((p) => this.scene.remove(p));
+    this.state.player.projectiles.forEach((p) => this.scene.remove(p.mesh));
 
     // spawn new enemies
     this.state.enemies = spawnEnemyGrid(this.scene, {
@@ -301,10 +307,10 @@ class Game {
    */
   // TODO: bind to external timer not the framerate
   private update = () => {
-    this.state.player.projectiles.forEach((projectile) => {
-      projectile.position.z -= 0.5;
-      if (projectile.position.z >= Game.globalOptions.far) {
-        projectile.remove();
+    this.state.player.projectiles.forEach((p) => {
+      p.mesh.position.z -= 0.5;
+      if (p.mesh.position.z >= Game.globalOptions.far) {
+        p.mesh.remove();
       }
     });
 
@@ -326,13 +332,13 @@ class Game {
         return;
       }
 
-      this.state.player.projectiles.forEach((projectile, j) => {
+      this.state.player.projectiles.forEach((p, j) => {
         if (
-          enemy.mesh.position.z - projectile.position.z >= 0 &&
-          Math.abs(enemy.mesh.position.x - projectile.position.x) <= 5
+          enemy.mesh.position.z - p.mesh.position.z >= 0 &&
+          Math.abs(enemy.mesh.position.x - p.mesh.position.x) <= 5
         ) {
           enemy.mesh.position.y -= 70;
-          this.scene.remove(projectile);
+          this.scene.remove(p.mesh);
           this.scene.remove(enemy.mesh);
           this.onEnemyKilled(enemy);
           this.state.player.projectiles.splice(j, 1);

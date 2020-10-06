@@ -1,10 +1,10 @@
 import * as THREE from "three";
-import { createProjectile } from "./Projectile";
+import Projectile from "./Projectile";
 
 export default class Player {
   public canShoot: Boolean = true;
   public mesh: THREE.Mesh;
-  public projectiles: ReturnType<typeof createProjectile>[] = [];
+  public projectiles: Projectile[] = [];
 
   constructor(private scene: THREE.Scene) {
     const materials = new THREE.MeshPhongMaterial({ color: 0xddd500 });
@@ -21,7 +21,9 @@ export default class Player {
     if (!this.canShoot) {
       return;
     }
-    this.projectiles.push(createProjectile(this.scene, this.mesh.position));
+    const p = new Projectile(this.mesh.position);
+    this.projectiles.push(p);
+    this.scene.add(p.mesh);
     this.canShoot = false;
     setTimeout(() => {
       this.canShoot = true;
