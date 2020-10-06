@@ -80,7 +80,7 @@ class Game {
       Game.globalOptions.far
     );
     camera.position.z = 80;
-    camera.position.y = 150;
+    camera.position.y = 130;
     // camera.position.x = 100;
     camera.rotation.set(-0.75, 0, 0);
     this.scene.add(camera);
@@ -170,9 +170,9 @@ class Game {
 
     // spawn new enemies
     this.state.enemies = spawnEnemyGrid(this.scene, {
-      origin: new THREE.Vector3(-30, 0, -250),
+      origin: new THREE.Vector3(-30, 0, 2 * -250),
       spacing: new THREE.Vector3(20, 0, 20),
-      rows: 5,
+      rows: 10,
       cols: 5,
       enemyOptions: { size: 5, initialHealth: 10 },
     });
@@ -207,7 +207,7 @@ class Game {
     //create a blue LineBasicMaterial
     const material = new THREE.LineDashedMaterial({
       color: 0xff0000,
-      linewidth: 10,
+      linewidth: 100,
       scale: 2,
       dashSize: 5,
       gapSize: 5,
@@ -317,8 +317,8 @@ class Game {
     let enemyStepX = 0.2 * this.state.options.direction;
     this.state.options.offset += enemyStepX;
     this.state.enemies.forEach((enemy, i) => {
-      enemy.mesh.rotation.z += 0.01;
-      enemy.mesh.position.z += 0.08;
+      enemy.mesh.rotation.z += 0.02;
+      enemy.mesh.position.z += 0.16;
       enemy.mesh.position.x += enemyStepX;
 
       if (enemy.mesh.position.z >= -5) {
