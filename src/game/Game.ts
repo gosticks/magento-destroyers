@@ -5,6 +5,10 @@ import createInputHandler, { KeyCodes } from "./utils/inputHandler";
 import Player from "./Player";
 import AbstractEffect from "./effects/AbstractEffect";
 import ControlDelegate from "./ControlDelegate";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
+import CrtPass from "./effects/CrtEffect";
 
 export interface IGameState {
   score: number;
@@ -35,6 +39,7 @@ class Game {
   private paused: boolean = false;
   private loader = new THREE.TextureLoader();
   private renderer!: THREE.WebGLRenderer;
+  private composer!: any;
   private state!: IGameState;
   private scene!: THREE.Scene;
   private camera!: THREE.Camera;
@@ -173,12 +178,11 @@ class Game {
     });
   };
 
-  private testLoadObjFile = async () => {};
-
   private setupGame() {
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
     });
+
     this.renderer.setClearColor(0x000000, 1);
 
     const scene = new THREE.Scene();
@@ -197,8 +201,6 @@ class Game {
     // this.state = this.setupGameState();
     this.drawDeadline();
     this.setupGameEffects();
-
-    this.testLoadObjFile();
   }
 
   private drawDeadline = () => {
@@ -224,6 +226,19 @@ class Game {
 
   private setupGameEffects = () => {
     this.effectsPipeline.push(new StarsEffect(this.scene));
+
+    const composer = new EffectComposer(this.renderer);
+
+    const renderPass = new RenderPass(this.scene, this.camera);
+    composer.addPass(renderPass);
+
+    const bloomPass = new (UnrealBloomPass as any)();
+    composer.addPass(bloomPass);
+
+    const crtPass = new CrtPass();
+    composer.addPass(crtPass);
+
+    this.composer = composer;
   };
 
   private setupGameState = (): IGameState => {
@@ -275,7 +290,7 @@ class Game {
     this.update();
 
     // render scene and effects
-    this.renderer.render(this.scene, this.camera);
+    this.composer.render(this.scene, this.camera);
 
     this.effectsPipeline.forEach((effect) => effect.update(this.state));
     // animateBgEffect(this.stars);
