@@ -1,7 +1,6 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect } from "react";
 import ControlDelegate from "../game/ControlDelegate";
 import Game from "../game/Game";
-import LevelOverlay from "./LevelOverlay";
 
 export interface CanvasProps {
   delegate: ControlDelegate;
@@ -15,6 +14,8 @@ const getGameSize = () => {
     const bounds = el.getBoundingClientRect();
     return { width: bounds.width, height: bounds.height };
   }
+
+  // fallback if element not present
   const width = Math.min(window.innerWidth, 1920) * 0.58;
   const height = width * 0.78;
 

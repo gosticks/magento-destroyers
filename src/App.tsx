@@ -56,13 +56,6 @@ const StyledOverlay = styled.div`
   color: #fff;
 `;
 
-const StyledTvOverlay = styled.img`
-  display: block;
-  width: 100%;
-  z-index: 10;
-  position: relative;
-`;
-
 const StyledGame = styled(Game)``;
 
 const App = () => {
@@ -92,7 +85,6 @@ const App = () => {
           {paused && <PauseOverlay />}
           {!started && <StartScreen onStart={() => setStarted(true)} />}
         </ComputerMonitor>
-        {/* <StyledTvOverlay src="/screen.png" /> */}
       </AppContainer>
     </div>
   );

@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { getTextureLoader } from "./utils/textureUtils";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
 export interface IEnemy {
@@ -14,17 +13,6 @@ export interface IEnemyOptions {
 }
 
 const createEnemyMesh = (size: number, pos?: THREE.Vector3) => {
-  // const enemyTexture = getTextureLoader().load("enemy.png");
-  // const materials = [
-  //   new THREE.MeshStandardMaterial({ map: enemyTexture }),
-  //   new THREE.MeshStandardMaterial({ map: enemyTexture }),
-  //   new THREE.MeshStandardMaterial({ map: enemyTexture }),
-  //   new THREE.MeshStandardMaterial({ map: enemyTexture }),
-  //   new THREE.MeshStandardMaterial({ map: enemyTexture }),
-  //   new THREE.MeshStandardMaterial({ map: enemyTexture }),
-  // ];
-  // const boxGeometry = new THREE.BoxGeometry(size, size, size);
-
   return enemyMesh!.clone(); //new THREE.Mesh(boxGeometry, materials);
 };
 
