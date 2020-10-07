@@ -5,6 +5,7 @@ import styled, { createGlobalStyle } from "styled-components";
 import PauseOverlay from "./components/PauseOverlay";
 import ControlDelegate from "./game/ControlDelegate";
 import StartScreen from "./components/StartScreen";
+import ComputerMonitor from "./components/ComputerMonitor";
 
 createGlobalStyle`
   body {
@@ -36,9 +37,6 @@ const Score = (props: { score: number }) => {
 
 const AppContainer = styled.div`
   position: relative;
-  max-width: 1920px;
-  margin-left: 0;
-  margin-right: 0;
 `;
 
 const StyledScore = styled.div`
@@ -67,12 +65,6 @@ const StyledTvOverlay = styled.img`
 
 const StyledGame = styled(Game)``;
 
-const GameContainer = styled.div`
-  position: absolute;
-  left: 13%;
-  top: 18%;
-`;
-
 const App = () => {
   const [paused, setPaused] = useState(false);
   const [started, setStarted] = useState(false);
@@ -89,7 +81,7 @@ const App = () => {
   return (
     <div className="App">
       <AppContainer>
-        <GameContainer>
+        <ComputerMonitor>
           <StyledGame delegate={gameDelegate.current} started={started} />
           {started && (
             <>
@@ -99,8 +91,8 @@ const App = () => {
           )}
           {paused && <PauseOverlay />}
           {!started && <StartScreen onStart={() => setStarted(true)} />}
-        </GameContainer>
-        <StyledTvOverlay src="/screen.png" />
+        </ComputerMonitor>
+        {/* <StyledTvOverlay src="/screen.png" /> */}
       </AppContainer>
     </div>
   );

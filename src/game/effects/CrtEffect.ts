@@ -8,7 +8,7 @@ const shader = {
   uniforms: {
     tDiffuse: { value: null },
     opacity: { value: 1 },
-    curve: { value: 1.25 },
+    curve: { value: 2.25 },
     scanLines: { value: 640 },
   },
 

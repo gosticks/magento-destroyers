@@ -10,6 +10,11 @@ export interface CanvasProps {
 }
 
 const getGameSize = () => {
+  const el = document.getElementById("inner-screen");
+  if (el) {
+    const bounds = el.getBoundingClientRect();
+    return { width: bounds.width, height: bounds.height };
+  }
   const width = Math.min(window.innerWidth, 1920) * 0.58;
   const height = width * 0.78;
 

@@ -31,7 +31,7 @@ const materialShader: THREE.Shader = {
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.);
   }`,
   fragmentShader: `
-    uniform vec3 uColor;
+    uniform vec3 uColor;  
     varying vec2 texCoords;
 
     void main() {
