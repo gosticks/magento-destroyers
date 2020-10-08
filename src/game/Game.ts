@@ -2,7 +2,7 @@ import * as THREE from "three";
 import StarsEffect from "./effects/StarsEffect";
 import { IEnemy, spawnEnemyGrid, loadEnemyMesh } from "./Enemy";
 import createInputHandler, { KeyCodes } from "./utils/inputHandler";
-import Player from "./Player";
+import Player, { loadMesh } from "./Player";
 import AbstractEffect from "./effects/AbstractEffect";
 import ControlDelegate from "./ControlDelegate";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
@@ -55,7 +55,7 @@ class Game {
     this.loader.setPath("textures/");
 
     // setup all assets
-    Promise.all([loadEnemyMesh()])
+    Promise.all([loadEnemyMesh(), loadMesh()])
       .then(() => {
         this.setupGame();
       })
@@ -94,7 +94,7 @@ class Game {
   };
 
   public setupGameInputHandling = (player: Player) => {
-    const stepSize = 2;
+    const stepSize = 0.7;
 
     // remove old key handlers if present
     if (this.state && this.state.inputHandler) {
@@ -106,19 +106,13 @@ class Game {
       [
         KeyCodes.leftArrow,
         () => {
-          player.mesh.position.x = Math.max(
-            -screenBounds,
-            player.mesh.position.x - stepSize
-          );
+          player.move(-stepSize);
         },
       ],
       [
         KeyCodes.rightArrow,
         () => {
-          player.mesh.position.x = Math.min(
-            screenBounds,
-            player.mesh.position.x + stepSize
-          );
+          player.move(stepSize);
         },
       ],
       [KeyCodes.space, player.shoot],
@@ -307,6 +301,9 @@ class Game {
    */
   // TODO: bind to external timer not the framerate
   private update = () => {
+    // update player
+    this.state.player.update();
+
     this.state.player.projectiles.forEach((p) => {
       p.mesh.position.z -= 0.5;
       if (p.mesh.position.z >= Game.globalOptions.far) {
