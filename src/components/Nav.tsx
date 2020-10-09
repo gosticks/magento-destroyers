@@ -20,6 +20,12 @@ const StyledNav = styled.nav`
 const StyledAnchor = styled.a`
   opacity: 0.8;
   transition: 0.1s opacity ease-in;
+  color: #fff;
+
+  &::active,
+  &::visited {
+    color: #fff;
+  }
 
   &:hover {
     opacity: 0.2;
@@ -30,9 +36,13 @@ const Nav = (props: {}) => {
   return (
     <StyledNav>
       <StyledAnchor href="https://iamwlad.com">
-        <img src="/outline-icon-small.svg" height={60} />
+        <img
+          src="/outline-icon-small.svg"
+          height={60}
+          alt="go to iamwlad.com"
+        />
       </StyledAnchor>
-      <StyledAnchor>
+      <StyledAnchor href="https://github.com/gosticks/magento-destroyers">
         <Github size={60} />
       </StyledAnchor>
     </StyledNav>
