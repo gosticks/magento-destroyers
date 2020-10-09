@@ -18,7 +18,7 @@ export const loadMesh = async () => {
     playerMesh.scale.setX(300);
     playerMesh.scale.setY(300);
     playerMesh.scale.setZ(300);
-    playerMesh.rotation.x = 0; //3.15;
+    playerMesh.rotation.x = 0;
     Player.mesh = playerMesh;
   } catch (e) {
     console.error(e);
@@ -35,16 +35,15 @@ export default class Player {
   public speed: number = 1;
   // movement amount which will fall every tick
   public acceleration: number = 0;
+  // public accelerationZ: number = 0;
 
   public dampening = 0.35;
   public fireTimeout = 250;
   public stepSize = 0.7;
 
-  // movement limitations
-
   constructor(private scene: THREE.Scene, public minX = -90, public maxX = 90) {
     const mesh = Player.mesh.clone();
-    mesh.position.z = 10;
+    mesh.position.z = 20;
     this.mesh = mesh;
   }
 
@@ -56,6 +55,7 @@ export default class Player {
     this.projectiles.push(p);
     this.scene.add(p.mesh);
     this.canShoot = false;
+    // this.accelerationZ += Math.min(0.2, 6);
     setTimeout(() => {
       this.canShoot = true;
     }, this.fireTimeout);
@@ -72,14 +72,17 @@ export default class Player {
     let posX = this.mesh.position.x + this.acceleration * this.speed;
     this.mesh.position.x = Math.min(Math.max(posX, this.minX), this.maxX);
 
-    if (!this.acceleration) {
+    if (this.acceleration) {
+      this.mesh.rotation.z = this.acceleration * -0.2;
+      this.acceleration =
+        this.acceleration < 0
+          ? Math.min(0, this.acceleration + this.dampening)
+          : Math.max(0, this.acceleration - this.dampening);
       return;
     }
-
-    this.mesh.rotation.z = this.acceleration * -0.2;
-    this.acceleration =
-      this.acceleration < 0
-        ? Math.min(0, this.acceleration + this.dampening)
-        : Math.max(0, this.acceleration - this.dampening);
+    // if (this.accelerationZ) {
+    //   this.mesh.position.z = -this.accelerationZ;
+    //   this.accelerationZ = Math.max(this.accelerationZ - this.dampening, 0);
+    // }
   };
 }
