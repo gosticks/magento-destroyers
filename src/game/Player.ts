@@ -18,7 +18,7 @@ export const loadMesh = async () => {
     playerMesh.scale.setX(300);
     playerMesh.scale.setY(300);
     playerMesh.scale.setZ(300);
-    // playerMesh.rotation.z = 3.15;
+    playerMesh.rotation.x = 0; //3.15;
     Player.mesh = playerMesh;
   } catch (e) {
     console.error(e);
@@ -40,8 +40,6 @@ export default class Player {
 
   constructor(private scene: THREE.Scene, public minX = -75, public maxX = 75) {
     const mesh = Player.mesh.clone();
-
-    mesh.rotation.x = 3.15;
     mesh.position.z = 10;
     this.mesh = mesh;
   }
@@ -50,7 +48,7 @@ export default class Player {
     if (!this.canShoot) {
       return;
     }
-    const p = new Projectile(this.mesh.position);
+    const p = new Projectile(this.mesh.position, this.scene);
     this.projectiles.push(p);
     this.scene.add(p.mesh);
     this.canShoot = false;
@@ -68,9 +66,11 @@ export default class Player {
   public update = () => {
     let posX = this.mesh.position.x + this.inertia * this.speed;
     this.mesh.position.x = Math.min(Math.max(posX, this.minX), this.maxX);
+
     if (!this.inertia) {
       return;
     }
+    this.mesh.rotation.z = this.inertia * -0.2;
     this.inertia =
       this.inertia < 0
         ? Math.min(0, this.inertia + 0.35)

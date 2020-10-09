@@ -304,12 +304,12 @@ class Game {
     // update player
     this.state.player.update();
 
-    this.state.player.projectiles.forEach((p) => {
-      p.mesh.position.z -= 0.5;
-      if (p.mesh.position.z >= Game.globalOptions.far) {
-        p.mesh.remove();
-      }
-    });
+    this.state.player.projectiles.forEach((p) => p.update());
+
+    // filter out unused projectiles
+    this.state.player.projectiles = this.state.player.projectiles.filter(
+      (p) => !p.deleted
+    );
 
     if (this.state.options.offset < -targetMovement) {
       this.state.options.direction = +1;
@@ -319,6 +319,7 @@ class Game {
     }
     let enemyStepX = 0.2 * this.state.options.direction;
     this.state.options.offset += enemyStepX;
+
     this.state.enemies.forEach((enemy, i) => {
       enemy.mesh.rotation.z += 0.02;
       enemy.mesh.position.z += 0.16;

@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import Game from "./Game";
 
 export interface IProjectile {}
 
@@ -42,9 +43,14 @@ const materialShader: THREE.Shader = {
 };
 
 class Projectile {
-  public mesh: THREE.Mesh;
+  static initialVelocity = 0.6;
+  static maxVelocity = 12;
 
-  constructor(origin: THREE.Vector3) {
+  public mesh: THREE.Mesh;
+  public velocity: number = Projectile.initialVelocity;
+  public deleted: Boolean = false;
+
+  constructor(origin: THREE.Vector3, private scene: THREE.Scene) {
     const baseGeometry = new THREE.SphereGeometry(1);
     // let baseGeometry = new THREE.TubeBufferGeometry(curve, 25, 1, 8, false);
     let material = new THREE.ShaderMaterial({ ...materialShader });
@@ -52,6 +58,24 @@ class Projectile {
     this.mesh.position.x = origin.x;
     this.mesh.position.y = -5;
   }
+
+  public update = () => {
+    this.velocity = Math.min(
+      this.velocity * (1 + this.velocity),
+      Projectile.maxVelocity
+    );
+    this.mesh.position.z -= this.velocity;
+
+    // if projectile is out of visible bounds remove it1
+    if (this.mesh.position.z >= Game.globalOptions.far) {
+      this.delete();
+    }
+  };
+
+  public delete = () => {
+    this.scene.remove(this.mesh);
+    this.deleted = true;
+  };
 }
 
 export default Projectile;
