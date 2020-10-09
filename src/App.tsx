@@ -125,7 +125,11 @@ const App = () => {
     <div className="App">
       <AppContainer>
         <ComputerMonitor>
-          <StyledGame delegate={gameDelegate.current} started={started} />
+          <StyledGame
+            delegate={gameDelegate.current}
+            gameOver={isGameOver}
+            started={started}
+          />
           {started && (
             <>
               <Score score={score} highScore={highScore} />
@@ -138,7 +142,10 @@ const App = () => {
               isNewHigh={isNewHighScore}
               isGameOver={isGameOver}
               score={score}
-              onStart={() => setStarted(true)}
+              onStart={() => {
+                setStarted(true);
+                setGameOver(false);
+              }}
             />
           )}
         </ComputerMonitor>

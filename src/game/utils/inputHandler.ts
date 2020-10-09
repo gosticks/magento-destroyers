@@ -27,7 +27,8 @@ const createInputHandler = () => {
       });
     },
     destroy: () => {
-      console.error("destroy inputHandler not implemented yet.");
+      document.onkeydown = null;
+      document.onkeyup = null;
     },
     keyHandlers: new Map<KeyCodes, () => void>(),
     keySingleHandlers: new Map<KeyCodes, () => void>(),

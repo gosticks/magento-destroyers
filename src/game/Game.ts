@@ -15,7 +15,6 @@ export interface IGameState {
 
   player: Player;
   enemies: EnemyGroup[];
-  inputHandler: ReturnType<typeof createInputHandler>;
   finishPlane: THREE.Plane;
   enemyMovementSpeedX: number;
   enemymovementSpeedZ: number;
@@ -40,6 +39,7 @@ class Game {
   private scene!: THREE.Scene;
   private camera!: THREE.Camera;
   private effectsPipeline: AbstractEffect[] = [];
+  private inputHandler: ReturnType<typeof createInputHandler> | undefined;
 
   constructor(
     private width: number,
@@ -91,8 +91,8 @@ class Game {
 
   public setupGameInputHandling = (player: Player) => {
     // remove old key handlers if present
-    if (this.state && this.state.inputHandler) {
-      this.state.inputHandler.destroy();
+    if (this.inputHandler) {
+      this.inputHandler.destroy();
     }
 
     const inputHandler = createInputHandler();
@@ -129,7 +129,7 @@ class Game {
       ],
     ]);
 
-    return inputHandler;
+    this.inputHandler = inputHandler;
   };
 
   public onStartGame = () => {
@@ -137,19 +137,19 @@ class Game {
       this.delegate.onStartGame();
     }
 
-    // only start if not already started
-    if (this.started) {
-      return;
-    }
-
     // setup initial game state
-    this.state = this.setupGameState();
+    this.resetGameState();
+
+    // setup input handler
+    this.setupGameInputHandling(this.state.player);
 
     this.started = true;
+    this.paused = true;
     this.startLevel();
 
     // start render loop
     this.render();
+    this.paused = false;
   };
 
   public startLevel = () => {
@@ -227,6 +227,23 @@ class Game {
     this.composer = composer;
   };
 
+  /**
+   * clears old game state if present
+   */
+  private resetGameState = () => {
+    if (!this.state) {
+      this.state = this.setupGameState();
+      return;
+    }
+
+    // remove everything
+    this.state.player.projectiles.forEach((p) => p.delete());
+    this.scene.remove(this.state.player.mesh);
+    this.state.enemies.forEach((e) => e.remove());
+
+    this.state = this.setupGameState();
+  };
+
   private setupGameState = (): IGameState => {
     const player = new Player(this.scene);
     this.scene.add(player.mesh);
@@ -235,7 +252,6 @@ class Game {
       player: player,
       enemies: [],
       finishPlane: new THREE.Plane(new THREE.Vector3(0, 0, 1)),
-      inputHandler: this.setupGameInputHandling(player),
       enemyMovementSpeedX: 0.3,
       enemymovementSpeedZ: 0.2,
     };
@@ -257,7 +273,10 @@ class Game {
   };
 
   private render = () => {
-    this.state.inputHandler.run();
+    if (!this.started) {
+      return;
+    }
+    this.inputHandler!.run();
 
     requestAnimationFrame(this.render);
 
@@ -343,7 +362,7 @@ class Game {
   };
 
   private gameOver = () => {
-    this.paused = true;
+    this.started = false;
     if (this.delegate?.onGameOver) {
       this.delegate.onGameOver(this.state.score, "You suck!");
     }

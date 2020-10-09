@@ -5,6 +5,7 @@ import Game from "../game/Game";
 export interface CanvasProps {
   delegate: ControlDelegate;
   started: boolean;
+  gameOver: boolean;
   className?: string;
 }
 
@@ -37,8 +38,10 @@ export default (props: CanvasProps) => {
   const game = useRef<Game | undefined>();
 
   useEffect(() => {
-    game.current?.onStartGame();
-  }, [props.started]);
+    if (!props.gameOver && props.started) {
+      game.current?.onStartGame();
+    }
+  }, [props.started, props.gameOver]);
 
   // setup resize handler
   useEffect(() => {
