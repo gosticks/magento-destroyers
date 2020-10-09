@@ -42,7 +42,7 @@ export default class Player {
 
   // movement limitations
 
-  constructor(private scene: THREE.Scene, public minX = -75, public maxX = 75) {
+  constructor(private scene: THREE.Scene, public minX = -90, public maxX = 90) {
     const mesh = Player.mesh.clone();
     mesh.position.z = 10;
     this.mesh = mesh;
@@ -63,7 +63,9 @@ export default class Player {
 
   public move = (direction: number, diff: number = this.stepSize) => {
     const newValue = this.acceleration + diff * direction;
-    this.acceleration = Math.max(Math.min(newValue, 3), newValue, -3);
+
+    this.acceleration =
+      newValue < 0 ? Math.max(newValue, -3) : Math.min(newValue, 3);
   };
 
   public update = () => {

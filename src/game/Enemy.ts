@@ -1,4 +1,3 @@
-import { group } from "console";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
@@ -46,9 +45,9 @@ export const loadEnemyMesh = async () => {
     enemy.material = new THREE.MeshPhongMaterial({
       color: 0xf15c22,
     });
-    enemy.scale.setX(300);
-    enemy.scale.setY(300);
-    enemy.scale.setZ(300);
+    enemy.scale.setX(303);
+    enemy.scale.setY(303);
+    enemy.scale.setZ(303);
     enemy.rotation.z = 3.15;
     enemy.rotation.x = 3.15;
     enemyMesh = enemy;
@@ -181,7 +180,7 @@ export class EnemyGroup {
     return this.entities.find(
       (e) =>
         Math.abs(e.mesh.position.z - adjustedPos.z) <= 10 &&
-        Math.abs(e.mesh.position.x - adjustedPos.x) <= 5
+        Math.abs(e.mesh.position.x - adjustedPos.x) <= 10
     );
   };
 }
