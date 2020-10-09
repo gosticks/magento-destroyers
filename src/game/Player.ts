@@ -34,7 +34,11 @@ export default class Player {
   // speed multiplier
   public speed: number = 1;
   // movement amount which will fall every tick
-  public inertia: number = 0;
+  public acceleration: number = 0;
+
+  public dampening = 0.35;
+  public fireTimeout = 250;
+  public stepSize = 0.7;
 
   // movement limitations
 
@@ -54,26 +58,26 @@ export default class Player {
     this.canShoot = false;
     setTimeout(() => {
       this.canShoot = true;
-    }, 500);
+    }, this.fireTimeout);
   };
 
-  public move = (diff: number) => {
-    const newValue = this.inertia + diff;
-    this.inertia = Math.max(Math.min(newValue, 3), newValue, -3);
-    // console.log("inertia", this.inertia, diff, sign);
+  public move = (direction: number, diff: number = this.stepSize) => {
+    const newValue = this.acceleration + diff * direction;
+    this.acceleration = Math.max(Math.min(newValue, 3), newValue, -3);
   };
 
   public update = () => {
-    let posX = this.mesh.position.x + this.inertia * this.speed;
+    let posX = this.mesh.position.x + this.acceleration * this.speed;
     this.mesh.position.x = Math.min(Math.max(posX, this.minX), this.maxX);
 
-    if (!this.inertia) {
+    if (!this.acceleration) {
       return;
     }
-    this.mesh.rotation.z = this.inertia * -0.2;
-    this.inertia =
-      this.inertia < 0
-        ? Math.min(0, this.inertia + 0.35)
-        : Math.max(0, this.inertia - 0.35);
+
+    this.mesh.rotation.z = this.acceleration * -0.2;
+    this.acceleration =
+      this.acceleration < 0
+        ? Math.min(0, this.acceleration + this.dampening)
+        : Math.max(0, this.acceleration - this.dampening);
   };
 }

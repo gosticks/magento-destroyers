@@ -1,5 +1,5 @@
 interface ControlDelegate {
-  onGameOver?: (reason: string) => void;
+  onGameOver?: (score: number, reason: string) => void;
   onComplete?: () => void;
   onPaused?: () => void;
   onResumed?: () => void;

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import StarsEffect from "./effects/StarsEffect";
-import { IEnemy, spawnEnemyGrid, loadEnemyMesh } from "./Enemy";
+import { IEnemy, loadEnemyMesh, EnemyGroup, BasicEnemy } from "./Enemy";
 import createInputHandler, { KeyCodes } from "./utils/inputHandler";
 import Player, { loadMesh } from "./Player";
 import AbstractEffect from "./effects/AbstractEffect";
@@ -14,17 +14,13 @@ export interface IGameState {
   score: number;
 
   player: Player;
-  enemies: IEnemy[];
+  enemies: EnemyGroup[];
   inputHandler: ReturnType<typeof createInputHandler>;
-
-  // TODO: move this away
-  options: {
-    offset: number;
-    direction: number;
-  };
+  finishPlane: THREE.Plane;
+  enemyMovementSpeedX: number;
+  enemymovementSpeedZ: number;
 }
 
-const targetMovement = 25;
 const screenBounds = 75;
 class Game {
   static globalOptions = {
@@ -94,8 +90,6 @@ class Game {
   };
 
   public setupGameInputHandling = (player: Player) => {
-    const stepSize = 0.7;
-
     // remove old key handlers if present
     if (this.state && this.state.inputHandler) {
       this.state.inputHandler.destroy();
@@ -106,13 +100,13 @@ class Game {
       [
         KeyCodes.leftArrow,
         () => {
-          player.move(-stepSize);
+          player.move(-1);
         },
       ],
       [
         KeyCodes.rightArrow,
         () => {
-          player.move(stepSize);
+          player.move(1);
         },
       ],
       [KeyCodes.space, player.shoot],
@@ -163,19 +157,11 @@ class Game {
     this.state.player.mesh.position.x = 0;
 
     // remove all enemies
-    this.state.enemies.forEach((enemy) => this.scene.remove(enemy.mesh));
+    this.state.enemies.forEach((g) => g.remove());
+    this.state.enemies = [];
 
     // remove all projectiles
     this.state.player.projectiles.forEach((p) => this.scene.remove(p.mesh));
-
-    // spawn new enemies
-    this.state.enemies = spawnEnemyGrid(this.scene, {
-      origin: new THREE.Vector3(-30, 0, 2 * -250),
-      spacing: new THREE.Vector3(20, 0, 20),
-      rows: 10,
-      cols: 5,
-      enemyOptions: { size: 5, initialHealth: 10 },
-    });
   };
 
   private setupGame() {
@@ -247,18 +233,11 @@ class Game {
     return {
       score: 0,
       player: player,
-      enemies: spawnEnemyGrid(this.scene, {
-        origin: new THREE.Vector3(-30, 0, -250),
-        spacing: new THREE.Vector3(20, 0, 20),
-        rows: 5,
-        cols: 5,
-        enemyOptions: { size: 5, initialHealth: 10 },
-      }),
+      enemies: [],
+      finishPlane: new THREE.Plane(new THREE.Vector3(0, 0, 1)),
       inputHandler: this.setupGameInputHandling(player),
-      options: {
-        offset: 0,
-        direction: -1,
-      },
+      enemyMovementSpeedX: 0.3,
+      enemymovementSpeedZ: 0.2,
     };
   };
 
@@ -311,49 +290,66 @@ class Game {
       (p) => !p.deleted
     );
 
-    if (this.state.options.offset < -targetMovement) {
-      this.state.options.direction = +1;
-    }
-    if (this.state.options.offset > targetMovement) {
-      this.state.options.direction = -1;
-    }
-    let enemyStepX = 0.2 * this.state.options.direction;
-    this.state.options.offset += enemyStepX;
+    this.state.enemies = this.state.enemies.filter((e) => !e.isEmpty);
+    this.state.enemies.forEach((group) => {
+      group.update();
 
-    this.state.enemies.forEach((enemy, i) => {
-      enemy.mesh.rotation.z += 0.02;
-      enemy.mesh.position.z += 0.16;
-      enemy.mesh.position.x += enemyStepX;
-
-      if (enemy.mesh.position.z >= -5) {
-        this.gameOver(enemy);
-        return;
-      }
-
-      this.state.player.projectiles.forEach((p, j) => {
-        if (
-          enemy.mesh.position.z - p.mesh.position.z >= 0 &&
-          Math.abs(enemy.mesh.position.x - p.mesh.position.x) <= 5
-        ) {
-          enemy.mesh.position.y -= 70;
-          this.scene.remove(p.mesh);
-          this.scene.remove(enemy.mesh);
-          this.onEnemyKilled(enemy);
-          this.state.player.projectiles.splice(j, 1);
-          this.state.enemies.splice(i, 1);
+      // check for collision
+      this.state.player.projectiles.forEach((proj, j) => {
+        const enemy = group.getCollidingEntity(proj.mesh.position);
+        if (!enemy) {
+          return;
         }
+
+        group.removeEntity(enemy);
+        this.onEnemyKilled(enemy);
+        this.state.player.projectiles.splice(j, 1);
+        this.scene.remove(proj.mesh);
       });
+
+      // check if enemy collides with finish
+      if (group.checkPlaneCollision(this.state.finishPlane)) {
+        this.gameOver();
+      }
     });
+
+    // if no more enemies spawn new ones
+    if (this.state.enemies.length === 0) {
+      this.spawnNextWave();
+    }
   };
 
-  private gameOver = (enemy: IEnemy) => {
+  private spawnNextWave = () => {
+    this.state.enemies.push(
+      EnemyGroup.createGrid(this.scene, 5, 5, {
+        origin: new THREE.Vector3(-30, 0, -250),
+        spacing: new THREE.Vector3(20, 0, 20),
+        enemyOptions: { size: 5, initialHealth: 10 },
+        movementSpeedX: this.state.enemyMovementSpeedX,
+        movementSpeedZ: this.state.enemymovementSpeedZ,
+      })
+    );
+
+    this.state.enemyMovementSpeedX += 0.1;
+    this.state.enemymovementSpeedZ += 0.05;
+    this.state.player.fireTimeout = Math.max(
+      0.05,
+      this.state.player.fireTimeout - 0.09
+    );
+    this.state.player.stepSize = Math.max(
+      0.05,
+      this.state.player.stepSize + 0.05
+    );
+  };
+
+  private gameOver = () => {
     this.paused = true;
     if (this.delegate?.onGameOver) {
-      this.delegate.onGameOver("You suck!");
+      this.delegate.onGameOver(this.state.score, "You suck!");
     }
   };
 
-  private onEnemyKilled = (enemy: IEnemy) => {
+  private onEnemyKilled = (enemy: BasicEnemy) => {
     this.updateScore(50);
   };
 
