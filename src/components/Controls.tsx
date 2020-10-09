@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import StyledOverlay from "./Overlay";
 
 const KeyBox = styled.span`
   display: inline-block;

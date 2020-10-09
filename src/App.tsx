@@ -6,8 +6,6 @@ import PauseOverlay from "./components/PauseOverlay";
 import ControlDelegate from "./game/ControlDelegate";
 import StartScreen from "./components/StartScreen";
 import ComputerMonitor from "./components/ComputerMonitor";
-import { parse } from "url";
-import Controls from "./components/Controls";
 import Score from "./components/Score";
 import Nav from "./components/Nav";
 import Footer from "./components/Footer";

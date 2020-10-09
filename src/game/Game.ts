@@ -21,7 +21,6 @@ export interface IGameState {
   enemymovementSpeedZ: number;
 }
 
-const screenBounds = 75;
 class Game {
   static globalOptions = {
     fov: 60,
