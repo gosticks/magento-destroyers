@@ -1,6 +1,5 @@
 # Magento Destroyers
-
-This is a simple game written in ThreeJS.This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app) to allow for a quick start.
+Magento checkout frontend has been driving me insane for the last couple of weeks. So I did the only sane thing and created a simple game to vent the aggression towards the "fantastic" "magento development experiance"™. This game is released as part of a rant on my blog so feel free to check that out [here](https://iamwlad.com/blog). This game is build using ThreeJS and since it is my first Three project I probably overseen something terrible so please don't be too hard on me for any errors :) 
 
 ## Available Scripts
 
