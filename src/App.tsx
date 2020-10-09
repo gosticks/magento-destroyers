@@ -7,6 +7,7 @@ import ControlDelegate from "./game/ControlDelegate";
 import StartScreen from "./components/StartScreen";
 import ComputerMonitor from "./components/ComputerMonitor";
 import { parse } from "url";
+import Controls from "./components/Controls";
 
 createGlobalStyle`
   body {

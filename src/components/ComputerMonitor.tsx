@@ -1,10 +1,12 @@
 import React from "react";
 import styled from "styled-components";
+import Controls from "./Controls";
 
 const StyledMonitorContainer = styled.div`
   display: flex;
-  height: 95vh;
+  height: 100vh;
   width: 100%;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 `;
@@ -72,6 +74,8 @@ const ComputerMonitor: React.FC = (props) => {
           <PowerIndicator />
         </ScreenButtonRow>
       </StyledMonitor>
+
+      <Controls />
     </StyledMonitorContainer>
   );
 };

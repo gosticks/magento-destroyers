@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import StarsEffect from "./effects/StarsEffect";
-import { IEnemy, loadEnemyMesh, EnemyGroup, BasicEnemy } from "./Enemy";
+import BasicEnemy, { loadEnemyMesh } from "./Enemy";
 import createInputHandler, { KeyCodes } from "./utils/inputHandler";
 import Player, { loadMesh } from "./Player";
 import AbstractEffect from "./effects/AbstractEffect";
@@ -9,6 +9,7 @@ import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import CrtPass from "./effects/CrtEffect";
+import EnemyGroup from "./EnemyGroup";
 
 export interface IGameState {
   score: number;
