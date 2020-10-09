@@ -154,9 +154,6 @@ class Game {
   };
 
   public startLevel = () => {
-    // reset player position
-    this.state.player.mesh.position.x = 0;
-
     // remove all enemies
     this.state.enemies.forEach((g) => g.remove());
     this.state.enemies = [];
@@ -193,11 +190,11 @@ class Game {
   private drawDeadline = () => {
     //create a blue LineBasicMaterial
     const material = new THREE.LineDashedMaterial({
-      color: 0xff0000,
+      color: 0xeeeeee,
       linewidth: 100,
       scale: 2,
-      dashSize: 5,
-      gapSize: 5,
+      dashSize: 10,
+      gapSize: 10,
     });
     const points = [];
     points.push(new THREE.Vector3(-1000, 0, 0));
@@ -353,13 +350,10 @@ class Game {
     this.state.enemyMovementSpeedX += 0.1;
     this.state.enemymovementSpeedZ += 0.05;
     this.state.player.fireTimeout = Math.max(
-      0.05,
+      0.01,
       this.state.player.fireTimeout - 0.09
     );
-    this.state.player.stepSize = Math.max(
-      0.05,
-      this.state.player.stepSize + 0.05
-    );
+    this.state.player.stepSize = Math.min(10, this.state.player.stepSize + 0.1);
   };
 
   private gameOver = () => {

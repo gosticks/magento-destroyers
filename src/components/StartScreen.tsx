@@ -14,7 +14,7 @@ interface StartScreenProps {
 
 const StyledGameOver = styled.div`
   font-size: 3rem;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
 `;
 
 const MDLogo = styled.img`
@@ -38,6 +38,11 @@ const StartScreen: React.FC<StartScreenProps> = ({
           width={isGameOver ? 80 : 200}
           alt="Magento Destroyers"
         />
+        {!isGameOver && (
+          <StyledGameOver>
+            Magento <br /> Destroyers
+          </StyledGameOver>
+        )}
         {isGameOver && (
           <>
             <StyledGameOver>GAME OVER</StyledGameOver>

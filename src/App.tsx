@@ -8,6 +8,9 @@ import StartScreen from "./components/StartScreen";
 import ComputerMonitor from "./components/ComputerMonitor";
 import { parse } from "url";
 import Controls from "./components/Controls";
+import Score from "./components/Score";
+import Nav from "./components/Nav";
+import Footer from "./components/Footer";
 
 createGlobalStyle`
   body {
@@ -17,54 +20,8 @@ createGlobalStyle`
   }
 `;
 
-const Overlay = () => {
-  return (
-    <StyledOverlay>{/* <h1>CLEAR ALL MAGENTO TASKS</h1> */}</StyledOverlay>
-  );
-};
-
-const Score = (props: { score: number; highScore?: number }) => {
-  return (
-    <StyledScore>
-      <h3>
-        SCORE:
-        {props.score.toLocaleString("en", {
-          minimumIntegerDigits: 8,
-          useGrouping: false,
-        })}
-      </h3>
-      {props.highScore && (
-        <h5>
-          HIGH SCORE:
-          {props.highScore.toLocaleString("en", {
-            minimumIntegerDigits: 8,
-            useGrouping: false,
-          })}
-        </h5>
-      )}
-    </StyledScore>
-  );
-};
-
 const AppContainer = styled.div`
   position: relative;
-`;
-
-const StyledScore = styled.div`
-  position: absolute;
-  left: 5%;
-  top: 5%;
-  color: #fff;
-`;
-const StyledOverlay = styled.div`
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 25px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #fff;
 `;
 
 const StyledGame = styled(Game)``;
@@ -124,6 +81,7 @@ const App = () => {
 
   return (
     <div className="App">
+      <Nav />
       <AppContainer>
         <ComputerMonitor>
           <StyledGame
@@ -134,7 +92,6 @@ const App = () => {
           {started && (
             <>
               <Score score={score} highScore={highScore} />
-              <Overlay />
             </>
           )}
           {paused && <PauseOverlay />}
@@ -151,6 +108,7 @@ const App = () => {
           )}
         </ComputerMonitor>
       </AppContainer>
+      <Footer />
     </div>
   );
 };

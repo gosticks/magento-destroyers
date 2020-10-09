@@ -11,6 +11,10 @@ const StyledOverlay = styled.div`
   align-items: center;
   background-color: rgba(0, 0, 0, 0.8);
   color: #fff;
+
+  > div {
+    max-width: 90%;
+  }
 `;
 
 export default StyledOverlay;

@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from "react";
+import styled from "styled-components";
 import ControlDelegate from "../game/ControlDelegate";
 import Game from "../game/Game";
 
@@ -8,6 +9,13 @@ export interface CanvasProps {
   gameOver: boolean;
   className?: string;
 }
+
+const DeadlineText = styled.div`
+  position: absolute;
+  right: 3vmin;
+  bottom: 15vmin;
+  color: rgba(255, 0, 0, 0.3);
+`;
 
 const getGameSize = () => {
   const el = document.getElementById("inner-screen");
@@ -64,10 +72,6 @@ export default (props: CanvasProps) => {
     }
 
     game.current = createGameInstance(container.current);
-
-    return () => {
-      // TODO: perform any future cleanup here
-    };
   }, [container]);
 
   useEffect(() => {
@@ -76,11 +80,10 @@ export default (props: CanvasProps) => {
     }
   }, [props.delegate, game]);
 
-  // FIXME: read up on ref usage with modern TS
   return (
     <>
       <div className={props.className} ref={container as any}></div>
-      {/* {<LevelOverlay level={1} />} */}
+      {props.started && <DeadlineText>DEADLINE</DeadlineText>}
     </>
   );
 };
