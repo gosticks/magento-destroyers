@@ -365,7 +365,7 @@ class Game {
   private gameOver = () => {
     this.started = false;
     if (this.delegate?.onGameOver) {
-      this.delegate.onGameOver(this.state.score, "You suck!");
+      this.delegate.onGameOver(this.state.score, "You are just bad!");
     }
   };
 
