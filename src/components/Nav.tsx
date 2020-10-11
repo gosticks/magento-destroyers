@@ -38,12 +38,12 @@ const Nav = (props: {}) => {
       <StyledAnchor href="https://iamwlad.com">
         <img
           src="/outline-icon-small.svg"
-          height={60}
+          height={40}
           alt="go to iamwlad.com"
         />
       </StyledAnchor>
       <StyledAnchor href="https://github.com/gosticks/magento-destroyers">
-        <Github size={60} />
+        <Github size={40} />
       </StyledAnchor>
     </StyledNav>
   );

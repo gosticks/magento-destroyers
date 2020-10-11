@@ -1,7 +1,10 @@
 import * as THREE from "three";
 import StarsEffect from "./effects/StarsEffect";
 import BasicEnemy, { loadEnemyMesh } from "./Enemy";
-import createInputHandler, { KeyCodes } from "./utils/inputHandler";
+import createInputHandler, {
+  KeyCodes,
+  waitForOrientationRequest,
+} from "./utils/inputHandler";
 import Player, { loadMesh } from "./Player";
 import AbstractEffect from "./effects/AbstractEffect";
 import ControlDelegate from "./ControlDelegate";
@@ -68,9 +71,14 @@ class Game {
     this.renderer.setSize(width, height);
     this.renderer.setPixelRatio(pixelRatio);
 
+    let fov = Game.globalOptions.fov;
+    if (width < 768) {
+      fov = 90;
+    }
+
     const aspect = width / height;
     const camera = new THREE.PerspectiveCamera(
-      Game.globalOptions.fov,
+      fov,
       aspect,
       Game.globalOptions.near,
       Game.globalOptions.far
@@ -89,13 +97,24 @@ class Game {
     this.pixelRatio = pixelRatio;
   };
 
+  public handleDeviceOrientationChange = (e: DeviceOrientationEvent) => {
+    if (!e.gamma) {
+      return;
+    }
+    console.log("Gamma", e.gamma);
+    const gamma = Math.min(Math.max(e.gamma, -40), +40) / 80;
+    this.state.player.mesh.position.x = gamma * 140;
+  };
+
   public setupGameInputHandling = (player: Player) => {
     // remove old key handlers if present
     if (this.inputHandler) {
+      this.el.removeEventListener("touchstart", player.shoot);
       this.inputHandler.destroy();
     }
 
-    const inputHandler = createInputHandler();
+    const inputHandler = createInputHandler(this.handleDeviceOrientationChange);
+    this.el.addEventListener("touchstart", player.shoot);
     inputHandler.keyHandlers = new Map<KeyCodes, () => void>([
       [
         KeyCodes.leftArrow,
@@ -132,7 +151,12 @@ class Game {
     this.inputHandler = inputHandler;
   };
 
-  public onStartGame = () => {
+  public onStartGame = async () => {
+    // wait till the orientation event was either allowed or not
+    try {
+      await waitForOrientationRequest();
+    } catch {}
+
     if (this.delegate && this.delegate.onStartGame) {
       this.delegate.onStartGame();
     }

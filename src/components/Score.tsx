@@ -3,8 +3,12 @@ import styled from "styled-components";
 
 const StyledScore = styled.div`
   position: absolute;
-  left: 5%;
-  top: 5%;
+  left: 15px;
+  top: 50px;
+  @media screen and (min-width: 768px) {
+    left: 5%;
+    top: 5%;
+  }
   color: #fff;
 `;
 

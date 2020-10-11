@@ -11,6 +11,11 @@ export interface CanvasProps {
 }
 
 const DeadlineText = styled.div`
+  display: none;
+
+  @media screen and (min-width: 768px) {
+    display: block;
+  }
   position: absolute;
   right: 3vmin;
   bottom: 15vmin;

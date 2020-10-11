@@ -1,5 +1,44 @@
-const createInputHandler = () => {
+let useOrientation: boolean | undefined = undefined;
+
+export const requestOrientation = () => {
+  if (!DeviceOrientationEvent) {
+    useOrientation = false;
+    return;
+  }
+  if (typeof (DeviceOrientationEvent as any).requestPermission === "function") {
+    (DeviceOrientationEvent as any)
+      .requestPermission()
+      .then((response: string) => {
+        if (response === "granted" && window.DeviceOrientationEvent) {
+          useOrientation = true;
+        }
+      });
+    return;
+  }
+  useOrientation = true;
+};
+
+export const waitForOrientationRequest = () => {
+  const awaitResolve = () => {
+    if (useOrientation !== undefined) {
+      return true;
+    }
+    console.log("waiting:", useOrientation);
+    setTimeout(awaitResolve, 200);
+  };
+
+  return new Promise((resolve, reject) => {
+    if (awaitResolve()) {
+      resolve();
+    }
+  });
+};
+
+const createInputHandler = (
+  orientationHandler?: (e: DeviceOrientationEvent) => void
+) => {
   const instance = {
+    onDeviceOrientationChange: orientationHandler,
     pressedKeys: new Map<number, boolean>(),
     onKeyUp: (e: KeyboardEvent) => {
       instance.pressedKeys.delete(e.keyCode);
@@ -29,10 +68,24 @@ const createInputHandler = () => {
     destroy: () => {
       document.onkeydown = null;
       document.onkeyup = null;
+      if (instance.onDeviceOrientationChange) {
+        window.removeEventListener(
+          "deviceorientation",
+          instance.onDeviceOrientationChange
+        );
+      }
     },
     keyHandlers: new Map<KeyCodes, () => void>(),
     keySingleHandlers: new Map<KeyCodes, () => void>(),
   };
+
+  if (instance.onDeviceOrientationChange && useOrientation) {
+    window.addEventListener(
+      "deviceorientation",
+      instance.onDeviceOrientationChange
+    );
+  }
+
   document.onkeydown = instance.onKeyDown;
   document.onkeyup = instance.onKeyUp;
   return instance;

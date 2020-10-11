@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { KeyCodes } from "../game/utils/inputHandler";
+import { KeyCodes, requestOrientation } from "../game/utils/inputHandler";
 import useKeypress from "../utils/hooks/useKeypress";
 import StyledButton from "./Button";
 import StyledOverlay from "./Overlay";
@@ -13,7 +13,10 @@ interface StartScreenProps {
 }
 
 const StyledGameOver = styled.div`
-  font-size: 3rem;
+  font-size: 2rem;
+  @media screen and (min-width: 768px) {
+    font-size: 3rem;
+  }
   margin-bottom: 2rem;
 `;
 
@@ -27,6 +30,7 @@ const StartScreen: React.FC<StartScreenProps> = ({
   score,
 }) => {
   useKeypress(KeyCodes.space, () => {
+    requestOrientation();
     onStart();
   });
 
@@ -58,7 +62,15 @@ const StartScreen: React.FC<StartScreenProps> = ({
         <br />
         <br />
         <div>
-          <StyledButton onClick={onStart}>START GAME</StyledButton>
+          <StyledButton
+            onClick={() => {
+              // request for gestures
+              requestOrientation();
+              onStart();
+            }}
+          >
+            START GAME
+          </StyledButton>
         </div>
       </div>
     </StyledOverlay>

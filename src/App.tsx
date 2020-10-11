@@ -22,7 +22,9 @@ const AppContainer = styled.div`
   position: relative;
 `;
 
-const StyledGame = styled(Game)``;
+const StyledGame = styled(Game)`
+  user-select: none;
+`;
 
 const STORAGE_KEY = "highScore";
 
@@ -67,7 +69,6 @@ const App = () => {
       setStarted(true);
     },
     onGameOver: (score) => {
-      console.log("Score:", score);
       const newHighScoreSet = persistHighScore(score);
       setNewHighScore(newHighScoreSet);
       if (newHighScoreSet) {
