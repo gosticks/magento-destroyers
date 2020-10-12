@@ -1,7 +1,7 @@
 let useOrientation: boolean | undefined = undefined;
 
 export const requestOrientation = () => {
-  if (!DeviceOrientationEvent) {
+  if (!typeof DeviceOrientationEvent !== undefined) {
     useOrientation = false;
     return;
   }
