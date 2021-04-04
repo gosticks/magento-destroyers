@@ -7,6 +7,7 @@ export interface CanvasProps {
   delegate: ControlDelegate;
   started: boolean;
   gameOver: boolean;
+  paused: boolean;
   className?: string;
 }
 
@@ -55,6 +56,17 @@ export default (props: CanvasProps) => {
       game.current?.onStartGame();
     }
   }, [props.started, props.gameOver]);
+
+  useEffect(() => {
+    if (!game.current) {
+      return;
+    }
+    if (props.paused) {
+      game.current!.pause();
+    } else {
+      game.current!.resume();
+    }
+  }, [game, props.paused]);
 
   // setup resize handler
   useEffect(() => {

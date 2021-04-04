@@ -278,14 +278,14 @@ class Game {
     };
   };
 
-  private pause = () => {
+  public pause = () => {
     this.paused = true;
     if (this.delegate?.onPaused) {
       this.delegate!.onPaused();
     }
   };
 
-  private resume = () => {
+  public resume = () => {
     this.paused = false;
     if (this.delegate?.onResumed) {
       this.delegate!.onResumed();

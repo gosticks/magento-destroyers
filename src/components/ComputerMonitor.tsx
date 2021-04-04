@@ -60,11 +60,11 @@ const ScreenButtonRow = styled.div`
   align-items: center;
 `;
 
-const PowerIndicator = styled.div`
+const PowerIndicator = styled.div<{ playing: boolean }>`
   width: 1vmin;
   height: 1vmin;
   border-radius: 50%;
-  background-color: #218c74;
+  background-color: ${(props) => (props.playing ? "#218c74" : "red")};
   border: 0.25vmin solid #aaa;
 `;
 
@@ -77,18 +77,28 @@ const PowerButton = styled.button`
   background: #909090;
   color: #444;
   margin-right: 2vmin;
+  cursor: pointer;
+
+  &:hover {
+    background: #808080;
+  }
+
+  &:active {
+    background: #666363;
+  }
 `;
 
-const ComputerMonitor: React.FC = (props) => {
+const ComputerMonitor: React.FC<{
+  playing: boolean;
+  onPowerClick?: () => void;
+}> = ({ children, playing, onPowerClick }) => {
   return (
     <StyledMonitorContainer>
       <StyledMonitor>
-        <StyledInnerScreen id="inner-screen">
-          {props.children}
-        </StyledInnerScreen>
+        <StyledInnerScreen id="inner-screen">{children}</StyledInnerScreen>
         <ScreenButtonRow>
-          <PowerButton>POWER</PowerButton>
-          <PowerIndicator />
+          <PowerButton onClick={onPowerClick}>POWER</PowerButton>
+          <PowerIndicator playing={playing} />
         </ScreenButtonRow>
       </StyledMonitor>
 

@@ -82,11 +82,15 @@ const App = () => {
     <div className="App">
       <Nav />
       <AppContainer>
-        <ComputerMonitor>
+        <ComputerMonitor
+          onPowerClick={() => setPaused(!paused)}
+          playing={!paused}
+        >
           <StyledGame
             delegate={gameDelegate.current}
             gameOver={isGameOver}
             started={started}
+            paused={paused}
           />
           {started && (
             <>
