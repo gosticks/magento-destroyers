@@ -155,7 +155,7 @@ class Game {
     // wait till the orientation event was either allowed or not
     try {
       await waitForOrientationRequest();
-    } catch {}
+    } catch (e) { }
 
     if (this.delegate && this.delegate.onStartGame) {
       this.delegate.onStartGame();

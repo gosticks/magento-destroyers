@@ -1,21 +1,32 @@
 let useOrientation: boolean | undefined = undefined;
 
 export const requestOrientation = () => {
-  if (!typeof DeviceOrientationEvent !== undefined) {
+  if (typeof DeviceOrientationEvent === undefined) {
     useOrientation = false;
     return;
   }
-  if (typeof (DeviceOrientationEvent as any).requestPermission === "function") {
-    (DeviceOrientationEvent as any)
-      .requestPermission()
-      .then((response: string) => {
-        if (response === "granted" && window.DeviceOrientationEvent) {
-          useOrientation = true;
-        }
-      });
-    return;
+
+
+  if (typeof (DeviceOrientationEvent as any).requestPermission !== "function") {
+    useOrientation = false;
+    return
   }
+
+  (DeviceOrientationEvent as any)
+    .requestPermission()
+    .then((response: string) => {
+      if (response === "granted" && window.DeviceOrientationEvent) {
+        useOrientation = true;
+        return
+      }
+      useOrientation = false;
+
+    }).catch((err: any) => {
+      useOrientation = false;
+    });
+
   useOrientation = true;
+  return;
 };
 
 export const waitForOrientationRequest = () => {
@@ -23,13 +34,15 @@ export const waitForOrientationRequest = () => {
     if (useOrientation !== undefined) {
       return true;
     }
-    console.log("waiting:", useOrientation);
+    // console.log("waiting:", useOrientation);
     setTimeout(awaitResolve, 200);
   };
 
   return new Promise((resolve, reject) => {
     if (awaitResolve()) {
-      resolve();
+      resolve(true);
+    } else {
+      reject()
     }
   });
 };
