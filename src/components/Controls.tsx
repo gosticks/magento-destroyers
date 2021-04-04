@@ -13,18 +13,19 @@ const KeyBlock = styled.span`
   white-space: nowrap;
 `;
 
-const ControlsContainer = styled.div`
+const ControlsContainer = styled.div<{ embed?: boolean }>`
   margin-top: 2rem;
   margin-left: 2rem;
   margin-right: 2rem;
   color: #eee;
   padding: 0.5rem;
   text-align: left;
+  transform: scale(${(props) => (props.embed ? 0.7 : 1)});
 `;
 
-const Controls = () => {
+const Controls: React.FC<{ embed?: boolean }> = (props) => {
   return (
-    <ControlsContainer>
+    <ControlsContainer {...props}>
       <b>CONTROLS: </b>
       <KeyBlock>
         <KeyBox>←</KeyBox> = move left,

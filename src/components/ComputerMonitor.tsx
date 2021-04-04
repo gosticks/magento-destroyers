@@ -25,12 +25,17 @@ const StyledMonitor = styled.div<{ embed?: boolean }>`
   height: 100vh;
   @media screen and (min-width: 768px) {
     ${(props) =>
-      !props.embed &&
-      css`
-        width: 80vmin;
-        height: 65vmin;
-      `}
-    padding: 5vmin;
+      props.embed
+        ? css`
+            padding: 5%;
+            width: 90%;
+            height: 73%;
+          `
+        : css`
+            padding: 5vmin;
+            width: 80vmin;
+            height: 65vmin;
+          `}
     border-radius: 1rem;
     position: relative;
     background: rgb(193, 193, 193);
@@ -110,7 +115,7 @@ const ComputerMonitor: React.FC<{
         </ScreenButtonRow>
       </StyledMonitor>
 
-      <Controls />
+      <Controls embed={embed} />
     </StyledMonitorContainer>
   );
 };

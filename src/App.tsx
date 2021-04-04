@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import "./App.css";
 import Game from "./components/GameView";
-import styled, { createGlobalStyle } from "styled-components";
+import styled from "styled-components";
 import PauseOverlay from "./components/PauseOverlay";
 import ControlDelegate from "./game/ControlDelegate";
 import StartScreen from "./components/StartScreen";
@@ -10,16 +10,11 @@ import Score from "./components/Score";
 import Nav from "./components/Nav";
 import Footer from "./components/Footer";
 
-createGlobalStyle`
-  body {
-    font-family: "Press Start 2P", cursive;
-    color: #000;
-    background-color: #000;
-  }
-`;
-
-const AppContainer = styled.div`
+const AppContainer = styled.div<{ embed?: boolean }>`
   position: relative;
+  color: #000;
+  font-family: "Press Start 2P", monospace;
+  background-color: ${(props) => (props.embed ? "transparent" : "#000")};
 `;
 
 const StyledGame = styled(Game)`
@@ -50,8 +45,14 @@ const getHighScore = () => {
   return undefined;
 };
 
+const isEmbeded = () => {
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  return !!urlParams.get("embed");
+};
+
 const App = () => {
-  const [embed, setEmbed] = useState(false);
+  const [embed] = useState(isEmbeded());
   const [paused, setPaused] = useState(false);
   const [highScore, setHighScore] = useState(getHighScore());
   const [started, setStarted] = useState(false);
@@ -78,12 +79,6 @@ const App = () => {
       setGameOver(true);
     },
   });
-
-  useEffect(() => {
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
-    setEmbed(!!urlParams.get("embed"));
-  }, [setEmbed]);
 
   return (
     <div className="App">
