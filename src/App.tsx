@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./App.css";
 import Game from "./components/GameView";
 import styled, { createGlobalStyle } from "styled-components";
@@ -51,6 +51,7 @@ const getHighScore = () => {
 };
 
 const App = () => {
+  const [embed, setEmbed] = useState(false);
   const [paused, setPaused] = useState(false);
   const [highScore, setHighScore] = useState(getHighScore());
   const [started, setStarted] = useState(false);
@@ -78,11 +79,18 @@ const App = () => {
     },
   });
 
+  useEffect(() => {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    setEmbed(!!urlParams.get("embed"));
+  }, [setEmbed]);
+
   return (
     <div className="App">
-      <Nav />
+      {!embed && <Nav />}
       <AppContainer>
         <ComputerMonitor
+          embed={embed}
           onPowerClick={() => setPaused(!paused)}
           playing={!paused}
         >
@@ -111,7 +119,7 @@ const App = () => {
           )}
         </ComputerMonitor>
       </AppContainer>
-      <Footer />
+      {!embed && <Footer />}
     </div>
   );
 };

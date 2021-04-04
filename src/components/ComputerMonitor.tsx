@@ -1,28 +1,35 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import Controls from "./Controls";
 
-const StyledMonitorContainer = styled.div`
+const StyledMonitorContainer = styled.div<{ embed?: boolean }>`
   user-select: none;
   position: relative;
   width: 100%;
   height: 100vh;
 
-  @media screen and (min-width: 768px) {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
+  ${(props) =>
+    !props.embed &&
+    css`
+      @media screen and (min-width: 768px) {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+    `}
 `;
 
-const StyledMonitor = styled.div`
+const StyledMonitor = styled.div<{ embed?: boolean }>`
   width: 100%;
   height: 100vh;
-
   @media screen and (min-width: 768px) {
-    width: 80vmin;
-    height: 65vmin;
+    ${(props) =>
+      !props.embed &&
+      css`
+        width: 80vmin;
+        height: 65vmin;
+      `}
     padding: 5vmin;
     border-radius: 1rem;
     position: relative;
@@ -90,11 +97,12 @@ const PowerButton = styled.button`
 
 const ComputerMonitor: React.FC<{
   playing: boolean;
+  embed?: boolean;
   onPowerClick?: () => void;
-}> = ({ children, playing, onPowerClick }) => {
+}> = ({ children, playing, onPowerClick, embed }) => {
   return (
-    <StyledMonitorContainer>
-      <StyledMonitor>
+    <StyledMonitorContainer embed={embed}>
+      <StyledMonitor embed={embed}>
         <StyledInnerScreen id="inner-screen">{children}</StyledInnerScreen>
         <ScreenButtonRow>
           <PowerButton onClick={onPowerClick}>POWER</PowerButton>
